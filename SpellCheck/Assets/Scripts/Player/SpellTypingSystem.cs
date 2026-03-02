@@ -3,48 +3,65 @@ using TMPro;
 
 public class SpellTypingSystem : MonoBehaviour
 {
-    [Header("References")]
-    // The input field where the player types the spell
+    [Header("UI")]
     public TMP_InputField inputField;
 
-    // Reference to our spell database so we can check valid spells
-    public SpellDatabase spellDatabase;
+    [Header("Spell Data")]
+    public SpellDatabaseSO database;
+
+    [Header("Where spells spawn from")]
+    public Transform spawnPoint; // player hand, staff tip, center, ground marker, etc.
 
     void Start()
     {
-        // Auto focus the input field at the start so player can type immediately
         inputField.ActivateInputField();
     }
 
     void Update()
     {
-        // If player presses Enter, attempt to cast whatever they typed
         if (Input.GetKeyDown(KeyCode.Return))
-        {
             AttemptSpell();
-        }
     }
 
-    // This runs when we try to cast a spell
     void AttemptSpell()
     {
-        // Get whatever the player typed
-        string typedSpell = inputField.text;
+        string typed = inputField.text;
 
-        // Ask the database if this spell is valid
-        if (spellDatabase.IsValidSpell(typedSpell))
+        // 1) Look up the spell
+        SpellDefinition spell = database ? database.GetSpell(typed) : null;
+
+        if (spell == null)
         {
-            Debug.Log("Spell Cast: " + typedSpell);
+            Debug.Log("Invalid Spell: " + typed);
+            ClearAndRefocus();
+            return;
+        }
+
+        Debug.Log("Spell Cast: " + spell.spellName);
+
+        // 2) Spawn prefab if this spell has one
+        if (spell.spawnPrefab != null && spawnPoint != null)
+        {
+            Vector3 pos = spawnPoint.TransformPoint(spell.spawnOffset);
+            Quaternion rot = spell.rotateToSpawnPoint ? spawnPoint.rotation : Quaternion.identity;
+
+            GameObject spawned = Instantiate(spell.spawnPrefab, pos, rot);
+
+            if (spell.parentToSpawnPoint)
+                spawned.transform.SetParent(spawnPoint, true);
         }
         else
         {
-            Debug.Log("Invalid Spell: " + typedSpell);
+            // Some spells might be "logic only" (buffs, UI, etc.)
+            Debug.Log("(No prefab assigned for this spell)");
         }
 
-        // Clear the input field after attempting
-        inputField.text = "";
+        ClearAndRefocus();
+    }
 
-        // Re-focus it so player can immediately type again
+    void ClearAndRefocus()
+    {
+        inputField.text = "";
         inputField.ActivateInputField();
     }
 }
