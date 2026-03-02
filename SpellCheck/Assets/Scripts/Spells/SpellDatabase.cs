@@ -8,10 +8,8 @@ public class SpellDatabase : MonoBehaviour
     public List<string> validSpells = new List<string>()
     {
         "fireball",
-        "earthshatter",
-        "seismic",
-        "stonewall",
-        "quake"
+        "earthquake",
+        "tsunami",
     };
 
     // Checks if the typed spell exists in the list returns true if it's valid, false if not
