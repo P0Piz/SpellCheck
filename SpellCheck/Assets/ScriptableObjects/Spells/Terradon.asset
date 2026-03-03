@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpellDefinition
   spellName: Terradon
   Description: Lob a heavy arcane stone bolt
-  spawnPrefab: {fileID: 0}
+  spawnPrefab: {fileID: 3675916888520247226, guid: babddcc0bd2fcca4f916a6c28bdc01cf, type: 3}
   spawnOffset: {x: 0, y: 0, z: 0}
   parentToSpawnPoint: 0
   rotateToSpawnPoint: 1

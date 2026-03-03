@@ -14,6 +14,4 @@ public class SpellDefinition : ScriptableObject
     public Vector3 spawnOffset;             // local offset from spawn point
     public bool parentToSpawnPoint = false; // useful for VFX sticking to hand/ground point
 
-    [Header("Spawn Settings")]
-    public bool rotateToSpawnPoint = true;  // if true, prefab matches spawn point rotation
 }

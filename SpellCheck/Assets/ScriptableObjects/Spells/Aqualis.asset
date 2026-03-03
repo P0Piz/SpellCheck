@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpellDefinition
   spellName: Aqualis
   Description: Send out a refined arcane tide projectile
-  spawnPrefab: {fileID: 0}
+  spawnPrefab: {fileID: 8581482236034475633, guid: 7515498b63b03dd449f8b6a0644e893b, type: 3}
   spawnOffset: {x: 0, y: 0, z: 0}
   parentToSpawnPoint: 0
-  rotateToSpawnPoint: 1

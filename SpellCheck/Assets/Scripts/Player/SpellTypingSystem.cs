@@ -42,17 +42,21 @@ public class SpellTypingSystem : MonoBehaviour
         // 2) Spawn prefab if this spell has one
         if (spell.spawnPrefab != null && spawnPoint != null)
         {
+            // Spawn position (still using offset relative to spawn point)
             Vector3 pos = spawnPoint.TransformPoint(spell.spawnOffset);
-            Quaternion rot = spell.rotateToSpawnPoint ? spawnPoint.rotation : Quaternion.identity;
 
-            GameObject spawned = Instantiate(spell.spawnPrefab, pos, rot);
+            // ALWAYS use the prefab's saved rotation
+            GameObject spawned = Instantiate(
+                spell.spawnPrefab,
+                pos,
+                spell.spawnPrefab.transform.rotation
+            );
 
             if (spell.parentToSpawnPoint)
                 spawned.transform.SetParent(spawnPoint, true);
         }
         else
         {
-            // Some spells might be "logic only" (buffs, UI, etc.)
             Debug.Log("(No prefab assigned for this spell)");
         }
 
