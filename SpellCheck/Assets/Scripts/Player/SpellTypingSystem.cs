@@ -10,24 +10,87 @@ public class SpellTypingSystem : MonoBehaviour
     public SpellDatabaseSO database;
 
     [Header("Where spells spawn from")]
-    public Transform spawnPoint; // player hand, staff tip, center, ground marker, etc.
+    public Transform spawnPoint;
 
-    void Start()
+    string lastValidText = "";
+
+    void Awake()
     {
-        inputField.ActivateInputField();
+        inputField.contentType = TMP_InputField.ContentType.Custom;
+        inputField.characterValidation = TMP_InputField.CharacterValidation.None;
+        inputField.onValidateInput += ValidateInput;
+
+        inputField.richText = false;
+    }
+
+    private char ValidateInput(string text, int charIndex, char addedChar)
+    {
+        if (char.IsLetter(addedChar))
+            return addedChar;
+
+        if (addedChar == ' ')
+        {
+            if (text.Length == 0) return '\0';
+            if (text.Length > 0 && text[text.Length - 1] == ' ') return '\0';
+            return addedChar;
+        }
+
+        return '\0';
+    }
+
+    private string ValidateCommand(string text, int charIndex, char addedChar, int command)
+    {
+        const int Paste = 1;
+
+        if (command == Paste)
+            return null;
+
+        return text;
     }
 
     void Update()
     {
+        if (!inputField.isFocused)
+            ForceFocus();
+
+        // BLOCK PASTE SHORTCUTS
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
+            Input.GetKeyDown(KeyCode.V))
+        {
+            return; // ignore paste
+        }
+
+        if ((Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand)) &&
+            Input.GetKeyDown(KeyCode.V))
+        {
+            return; // mac paste
+        }
+
+        if (Input.GetKeyDown(KeyCode.Insert) && Input.GetKey(KeyCode.LeftShift))
+        {
+            return; // Shift + Insert paste
+        }
+
         if (Input.GetKeyDown(KeyCode.Return))
             AttemptSpell();
+    }
+
+    void LateUpdate()
+    {
+        // If text suddenly jumps more than 1 character, assume paste
+        if (inputField.text.Length > lastValidText.Length + 1)
+        {
+            inputField.text = lastValidText;
+            inputField.caretPosition = inputField.text.Length;
+        }
+
+        lastValidText = inputField.text;
     }
 
     void AttemptSpell()
     {
         string typed = inputField.text;
 
-        // 1) Look up the spell
         SpellDefinition spell = database ? database.GetSpell(typed) : null;
 
         if (spell == null)
@@ -39,13 +102,10 @@ public class SpellTypingSystem : MonoBehaviour
 
         Debug.Log("Spell Cast: " + spell.spellName);
 
-        // 2) Spawn prefab if this spell has one
         if (spell.spawnPrefab != null && spawnPoint != null)
         {
-            // Spawn position (still using offset relative to spawn point)
             Vector3 pos = spawnPoint.TransformPoint(spell.spawnOffset);
 
-            // ALWAYS use the prefab's saved rotation
             GameObject spawned = Instantiate(
                 spell.spawnPrefab,
                 pos,
@@ -55,10 +115,6 @@ public class SpellTypingSystem : MonoBehaviour
             if (spell.parentToSpawnPoint)
                 spawned.transform.SetParent(spawnPoint, true);
         }
-        else
-        {
-            Debug.Log("(No prefab assigned for this spell)");
-        }
 
         ClearAndRefocus();
     }
@@ -66,6 +122,13 @@ public class SpellTypingSystem : MonoBehaviour
     void ClearAndRefocus()
     {
         inputField.text = "";
+        ForceFocus();
+    }
+
+    void ForceFocus()
+    {
+        inputField.Select();
         inputField.ActivateInputField();
+        inputField.caretPosition = inputField.text.Length;
     }
 }
