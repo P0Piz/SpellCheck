@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 426247973126838792}
   - component: {fileID: 4273205944291432540}
   - component: {fileID: 3358332190330669652}
-  - component: {fileID: 310412201365540215}
-  - component: {fileID: 3566180061061313673}
   - component: {fileID: 6597637194466751936}
+  - component: {fileID: 3566180061061313673}
+  - component: {fileID: 5107452006780615261}
   m_Layer: 0
   m_Name: Aqualis_Projectile
-  m_TagString: Untagged
+  m_TagString: Spell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -93,23 +93,27 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &310412201365540215
-MonoBehaviour:
+--- !u!65 &6597637194466751936
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8581482236034475633}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fbbc1ceb71c2b84a9322aef16b79510, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AqualisProjectile
-  enemyTag: Enemy
-  retargetInterval: 0.25
-  moveSpeed: 14
-  turnSpeed: 360
-  maxLifetime: 6
+  serializedVersion: 3
+  m_Size: {x: 1.0000001, y: 2, z: 1.0000002}
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!54 &3566180061061313673
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -137,24 +141,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &6597637194466751936
-BoxCollider:
+--- !u!114 &5107452006780615261
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8581482236034475633}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.0000001, y: 2, z: 1.0000002}
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7674b031d751c44ba4758b7f7c3bf91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HomingProjectileBase
+  enemyTag: Enemy
+  retargetInterval: 0.25
+  moveSpeed: 16
+  turnSpeed: 520
+  maxLifetime: 6
+  element: 2
+  damage: 1

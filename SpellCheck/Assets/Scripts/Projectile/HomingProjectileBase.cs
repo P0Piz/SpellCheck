@@ -1,6 +1,8 @@
 using UnityEngine;
 
-public abstract class HomingProjectileBase : MonoBehaviour
+using static Elements;
+
+public class HomingProjectileBase : MonoBehaviour
 {
     [Header("Targeting")]
     [Tooltip("Enemies should use this tag.")]
@@ -16,17 +18,24 @@ public abstract class HomingProjectileBase : MonoBehaviour
     [Header("Lifetime")]
     public float maxLifetime = 6f;
 
+    [Header("Element")]
+    public Elements.elements element = elements.Null;
+
+    [Header("Damage")]
+    public float damage = 1f;
+
+
     protected Transform target;
 
     float retargetTimer;
     float lifeTimer;
 
-    protected virtual void Start()
+    protected void Start()
     {
         AcquireClosestTarget();
     }
 
-    protected virtual void Update()
+    protected void Update()
     {
         // Self-destruct if it lives too long
         lifeTimer += Time.deltaTime;
@@ -49,7 +58,7 @@ public abstract class HomingProjectileBase : MonoBehaviour
     }
 
     // Finds the closest enemy by tag
-    protected virtual void AcquireClosestTarget()
+    protected void AcquireClosestTarget()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag(enemyTag);
         if (enemies == null || enemies.Length == 0)
@@ -79,7 +88,7 @@ public abstract class HomingProjectileBase : MonoBehaviour
     }
 
     // Turns toward target (if any) and moves forward
-    protected virtual void HomeAndMove()
+    protected void HomeAndMove()
     {
         Vector3 forwardDir = transform.forward;
 
@@ -102,19 +111,19 @@ public abstract class HomingProjectileBase : MonoBehaviour
     }
 
     // Trigger-based collision
-    protected virtual void OnTriggerEnter(Collider other)
+    protected void OnTriggerEnter(Collider other)
     {
         HandleImpact(other.gameObject);
     }
 
     // Physics collision
-    protected virtual void OnCollisionEnter(Collision collision)
+    protected void OnCollisionEnter(Collision collision)
     {
         HandleImpact(collision.gameObject);
     }
 
     // Debug + destroy on any impact for now
-    protected virtual void HandleImpact(GameObject hitObject)
+    protected void HandleImpact(GameObject hitObject)
     {
         Debug.Log($"{name} hit {hitObject.name} and was destroyed.");
         Destroy(gameObject);

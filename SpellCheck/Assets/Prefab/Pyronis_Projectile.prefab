@@ -12,11 +12,11 @@ GameObject:
   - component: {fileID: 2950692001769218205}
   - component: {fileID: 7228778244793118333}
   - component: {fileID: 3427069716813706788}
-  - component: {fileID: 7577944215431613315}
   - component: {fileID: 1509487864025620314}
+  - component: {fileID: -8569856313922244366}
   m_Layer: 0
   m_Name: Pyronis_Projectile
-  m_TagString: Untagged
+  m_TagString: Spell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -114,23 +114,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7577944215431613315
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3523280313500285970}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23ca35e60e0fa69479dea4bb9ca78629, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PyronisProjectile
-  enemyTag: Enemy
-  retargetInterval: 0.25
-  moveSpeed: 14
-  turnSpeed: 360
-  maxLifetime: 6
 --- !u!54 &1509487864025620314
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -158,3 +141,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &-8569856313922244366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3523280313500285970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7674b031d751c44ba4758b7f7c3bf91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HomingProjectileBase
+  enemyTag: Enemy
+  retargetInterval: 0.25
+  moveSpeed: 20
+  turnSpeed: 720
+  maxLifetime: 5
+  element: 1
+  damage: 1
