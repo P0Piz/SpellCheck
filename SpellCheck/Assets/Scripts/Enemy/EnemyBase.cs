@@ -16,6 +16,7 @@ public class EnemyBase : MonoBehaviour
 
 
     protected Transform player;
+    protected WaveSpawnerJson spawner;
 
     protected void TakeDamage(GameObject source)
     {
@@ -42,6 +43,11 @@ public class EnemyBase : MonoBehaviour
     protected void Start()
     {
         AcquireClosestTarget();
+
+        GameObject manager = GameObject.FindGameObjectWithTag("Manager");
+
+        if (manager != null)
+            spawner = manager.GetComponent<WaveSpawnerJson>();
     }
 
     protected void Update()
@@ -120,6 +126,7 @@ public class EnemyBase : MonoBehaviour
         if (hitObject.CompareTag("Spell"))
         {
             TakeDamage(hitObject);
+            spawner.NotifyEnemyDied(gameObject);
             Destroy(hitObject); // Destroy the spell on impact; you can change this if you want different behavior
         }
         else if (hitObject.CompareTag("Player"))

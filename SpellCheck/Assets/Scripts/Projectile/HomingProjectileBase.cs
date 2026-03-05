@@ -95,7 +95,7 @@ public class HomingProjectileBase : MonoBehaviour
         if (target)
         {
             Vector3 toTarget = (target.position - transform.position);
-            toTarget.y = 0f; //keeps the projectiles on flat plane; remove if you want full 3D homing
+            toTarget.y = 0f;
 
             if (toTarget.sqrMagnitude > 0.0001f)
             {

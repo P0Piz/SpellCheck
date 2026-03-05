@@ -1,0 +1,26 @@
+{
+  "waveName": "Wave 1",
+  "runGroupsSequentially": true,
+  "postWaveDelay": 2.0,
+  "requireKillAllToComplete": true,
+  "groups": [
+    {
+      "enemyType": "Earth",
+      "count": 5,
+      "interval": 0.5,
+      "startDelay": 0.0
+    },
+    {
+      "enemyType": "Fire",
+      "count": 3,
+      "interval": 0.8,
+      "startDelay": 1.0
+    },
+    {
+      "enemyType": "Water",
+      "count": 1,
+      "interval": 0.0,
+      "startDelay": 1.5
+    }
+  ]
+}

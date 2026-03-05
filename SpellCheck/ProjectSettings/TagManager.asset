@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - Spell
+  - Manager
   layers:
   - Default
   - TransparentFX
