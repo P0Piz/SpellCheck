@@ -18,9 +18,6 @@ public class SpellDatabaseDisplay : MonoBehaviour
     {
         // On start, build the list once
         RefreshDisplay();
-
-        if (printToConsoleOnStart)
-            Debug.Log(GetSpellListString());
     }
 
     void Update()

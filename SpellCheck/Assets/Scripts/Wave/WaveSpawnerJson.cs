@@ -12,7 +12,7 @@ public class WaveSpawnerJson : MonoBehaviour
     [Tooltip("Which wave index to start on.")]
     public int startIndex = 0;
 
-    [Header("Enemy Prefabs (3 Type")]
+    [Header("Enemy Prefabs")]
     public GameObject EarthPrefab;
     public GameObject FirePrefab;
     public GameObject WaterPrefab;
@@ -32,9 +32,12 @@ public class WaveSpawnerJson : MonoBehaviour
     public bool IsWaveRunning => isWaveRunning;
 
     private int currentIndex;
-    private bool isWaveRunning;
+    private bool isWaveRunning = false;
 
     private readonly HashSet<GameObject> living = new HashSet<GameObject>();
+
+    [Header("TypingSys")]
+    public SpellTypingSystem typing;
 
     void Awake()
     {
@@ -47,6 +50,11 @@ public class WaveSpawnerJson : MonoBehaviour
     {
         if (autoStartFirstWave)
             StartNextWave();
+    }
+
+    private void Update()
+    {
+        typing.enabled = isWaveRunning;
     }
 
     public void StartNextWaveButton()

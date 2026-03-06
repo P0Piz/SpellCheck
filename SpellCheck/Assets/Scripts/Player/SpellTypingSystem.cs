@@ -102,15 +102,20 @@ public class SpellTypingSystem : MonoBehaviour
 
         Debug.Log("Spell Cast: " + spell.spellName);
 
+        if (spell.healAmount > 0)
+        {
+            PlayerHealth player = FindObjectOfType<PlayerHealth>();
+            if (player != null)
+            {
+                player.Heal(spell.healAmount);
+            }
+        }
+
         if (spell.spawnPrefab != null && spawnPoint != null)
         {
             Vector3 pos = spawnPoint.TransformPoint(spell.spawnOffset);
 
-            GameObject spawned = Instantiate(
-                spell.spawnPrefab,
-                pos,
-                spell.spawnPrefab.transform.rotation
-            );
+            GameObject spawned = Instantiate(spell.spawnPrefab, pos, spawnPoint.rotation);
 
             if (spell.parentToSpawnPoint)
                 spawned.transform.SetParent(spawnPoint, true);

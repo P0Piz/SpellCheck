@@ -132,10 +132,27 @@ public class EnemyBase : MonoBehaviour
         else if (hitObject.CompareTag("Player"))
         {
             Debug.Log($"{name} hit the player!");
-            // You can add logic here to damage the player, trigger effects, etc.
+
+            PlayerHealth playerHealth = hitObject.GetComponent<PlayerHealth>();
+
+            if (playerHealth == null)
+            {
+                playerHealth = hitObject.GetComponentInParent<PlayerHealth>();
+            }
+
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(1);
+                Debug.Log("Damage applied to player");
+            }
+            else
+            {
+                Debug.LogWarning("PlayerHealth not found on hit object or parent: " + hitObject.name);
+            }
+
             Destroy(gameObject);
         }
-         else
+        else
         {
             Debug.Log($"{name} hit {hitObject.name}.");
         }
