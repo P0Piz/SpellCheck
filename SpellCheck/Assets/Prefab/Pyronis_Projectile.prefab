@@ -160,3 +160,20 @@ MonoBehaviour:
   maxLifetime: 5
   element: 1
   damage: 1
+  unstable: 0
+  unstableDamageMultiplier: 2
+  greater: 0
+  greaterScaleMultiplier: 1.75
+  greaterSpeedMultiplier: 0.65
+  frozen: 0
+  frozenDuration: 2
+  chained: 0
+  chainCount: 5
+  chainRange: 8
+  rapid: 0
+  rapidProjectileCount: 3
+  rapidSpreadAngle: 20
+  rapidChildScaleMultiplier: 0.7
+  rapidDamageMultiplier: 0.7
+  delayed: 0
+  delayedDuration: 0.4

@@ -685,6 +685,7 @@ GameObject:
   - component: {fileID: 452408721}
   - component: {fileID: 452408720}
   - component: {fileID: 452408722}
+  - component: {fileID: 452408723}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Manager
@@ -751,6 +752,19 @@ MonoBehaviour:
   autoStartFirstWave: 0
   loopWaves: 0
   typing: {fileID: 1024456093}
+--- !u!114 &452408723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452408719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dadeee467736d8c479f348cddf6b176b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NextSpellModifierSelector
+  nextModifier: 0
 --- !u!1 &496539209
 GameObject:
   m_ObjectHideFlags: 0
@@ -2445,6 +2459,7 @@ MonoBehaviour:
   inputField: {fileID: 871394079}
   database: {fileID: 11400000, guid: d1f229036f41b2643a6fbb8b2feeb722, type: 2}
   spawnPoint: {fileID: 1417103808}
+  modifierSelector: {fileID: 452408723}
 --- !u!114 &1024456094
 MonoBehaviour:
   m_ObjectHideFlags: 0

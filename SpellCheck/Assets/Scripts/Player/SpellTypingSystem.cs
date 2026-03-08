@@ -12,6 +12,9 @@ public class SpellTypingSystem : MonoBehaviour
     [Header("Where spells spawn from")]
     public Transform spawnPoint;
 
+    [Header("Optional")]
+    public NextSpellModifierSelector modifierSelector;
+
     string lastValidText = "";
 
     void Awake()
@@ -53,22 +56,21 @@ public class SpellTypingSystem : MonoBehaviour
         if (!inputField.isFocused)
             ForceFocus();
 
-        // BLOCK PASTE SHORTCUTS
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
             Input.GetKeyDown(KeyCode.V))
         {
-            return; // ignore paste
+            return;
         }
 
         if ((Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand)) &&
             Input.GetKeyDown(KeyCode.V))
         {
-            return; // mac paste
+            return;
         }
 
         if (Input.GetKeyDown(KeyCode.Insert) && Input.GetKey(KeyCode.LeftShift))
         {
-            return; // Shift + Insert paste
+            return;
         }
 
         if (Input.GetKeyDown(KeyCode.Return))
@@ -77,7 +79,6 @@ public class SpellTypingSystem : MonoBehaviour
 
     void LateUpdate()
     {
-        // If text suddenly jumps more than 1 character, assume paste
         if (inputField.text.Length > lastValidText.Length + 1)
         {
             inputField.text = lastValidText;
@@ -119,6 +120,12 @@ public class SpellTypingSystem : MonoBehaviour
 
             if (spell.parentToSpawnPoint)
                 spawned.transform.SetParent(spawnPoint, true);
+
+            HomingProjectileBase projectile = spawned.GetComponent<HomingProjectileBase>();
+            if (projectile != null && modifierSelector != null)
+            {
+                modifierSelector.ApplyModifierToProjectile(projectile);
+            }
         }
 
         ClearAndRefocus();

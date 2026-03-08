@@ -9,53 +9,90 @@ public class EnemyBase : MonoBehaviour
     public float turnSpeed = 360f; // degrees per second
 
     [Header("Life")]
-    public float life = 2;
+    public float life = 2f;
 
     [Header("Element")]
     public Elements.elements element = elements.Null;
 
+    [Header("Status")]
+    public bool isFrozen;
+    public float frozenTimer;
 
     protected Transform player;
     protected WaveSpawnerJson spawner;
-
-    protected void TakeDamage(GameObject source)
-    {
-        HomingProjectileBase sourceProjectile = source.GetComponent<HomingProjectileBase>();
-        // Placeholder damage logic; you can expand this with actual damage values, resistances, etc.
-        if (Elements.WeakTo(sourceProjectile.element, element))
-        {
-            life -= sourceProjectile.damage * 2f; // Double damage if weak
-            Debug.Log($"{name} is weak to {source.name}! Double damage taken.");
-        }else
-        {
-            life -= sourceProjectile.damage;
-            Debug.Log($"{name} is not weak to {source.name}. Normal damage taken.");
-        }
-        Debug.Log($"{name} took damage from {source.name}. Remaining life: {life}");
-
-        if (life <= 0)
-        {
-            Debug.Log($"{name} was destroyed by {source.name}.");
-            Destroy(gameObject);
-        }
-    }
 
     protected void Start()
     {
         AcquireClosestTarget();
 
         GameObject manager = GameObject.FindGameObjectWithTag("Manager");
-
         if (manager != null)
             spawner = manager.GetComponent<WaveSpawnerJson>();
     }
 
     protected void Update()
     {
-        HomeAndMove();
+        UpdateFrozenState();
+
+        if (!isFrozen)
+        {
+            HomeAndMove();
+        }
     }
 
-    // Finds the closest player by tag
+    void UpdateFrozenState()
+    {
+        if (frozenTimer > 0f)
+        {
+            frozenTimer -= Time.deltaTime;
+
+            if (frozenTimer <= 0f)
+            {
+                frozenTimer = 0f;
+                isFrozen = false;
+                Debug.Log($"{name} thawed out.");
+            }
+        }
+    }
+
+    public void ApplyFreeze(float duration)
+    {
+        isFrozen = true;
+        frozenTimer = Mathf.Max(frozenTimer, duration);
+        Debug.Log($"{name} was frozen for {duration} seconds.");
+    }
+
+    public void TakeDamage(HomingProjectileBase sourceProjectile)
+    {
+        if (sourceProjectile == null)
+            return;
+
+        float finalDamage = sourceProjectile.damage;
+
+        if (Elements.WeakTo(sourceProjectile.element, element))
+        {
+            finalDamage *= 2f;
+            Debug.Log($"{name} is weak to {sourceProjectile.name}! Double damage taken.");
+        }
+        else
+        {
+            Debug.Log($"{name} is not weak to {sourceProjectile.name}. Normal damage taken.");
+        }
+
+        life -= finalDamage;
+        Debug.Log($"{name} took damage from {sourceProjectile.name}. Remaining life: {life}");
+
+        if (life <= 0f)
+        {
+            Debug.Log($"{name} was destroyed by {sourceProjectile.name}.");
+
+            if (spawner != null)
+                spawner.NotifyEnemyDied(gameObject);
+
+            Destroy(gameObject);
+        }
+    }
+
     protected void AcquireClosestTarget()
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
@@ -85,7 +122,6 @@ public class EnemyBase : MonoBehaviour
         player = best;
     }
 
-    // Turns toward target (if any) and moves forward
     protected void HomeAndMove()
     {
         Vector3 forwardDir = transform.forward;
@@ -93,7 +129,7 @@ public class EnemyBase : MonoBehaviour
         if (player)
         {
             Vector3 toTarget = (player.position - transform.position);
-            toTarget.y = 0f; //keeps the projectiles on flat plane; remove if you want full 3D homing
+            toTarget.y = 0f;
 
             if (toTarget.sqrMagnitude > 0.0001f)
             {
@@ -108,26 +144,31 @@ public class EnemyBase : MonoBehaviour
         transform.position += transform.forward * moveSpeed * Time.deltaTime;
     }
 
-    // Trigger-based collision
     protected void OnTriggerEnter(Collider other)
     {
         HandleImpact(other.gameObject);
     }
 
-    // Physics collision
     protected void OnCollisionEnter(Collision collision)
     {
         HandleImpact(collision.gameObject);
     }
 
-    // Debug + destroy on any impact for now
     protected void HandleImpact(GameObject hitObject)
     {
         if (hitObject.CompareTag("Spell"))
         {
-            TakeDamage(hitObject);
-            spawner.NotifyEnemyDied(gameObject);
-            Destroy(hitObject); // Destroy the spell on impact; you can change this if you want different behavior
+            HomingProjectileBase projectile = hitObject.GetComponent<HomingProjectileBase>();
+
+            if (projectile != null)
+            {
+                projectile.OnHitEnemy(this);
+            }
+            else
+            {
+                Debug.LogWarning("Spell hit enemy but no HomingProjectileBase was found on: " + hitObject.name);
+                Destroy(hitObject);
+            }
         }
         else if (hitObject.CompareTag("Player"))
         {
@@ -136,9 +177,7 @@ public class EnemyBase : MonoBehaviour
             PlayerHealth playerHealth = hitObject.GetComponent<PlayerHealth>();
 
             if (playerHealth == null)
-            {
                 playerHealth = hitObject.GetComponentInParent<PlayerHealth>();
-            }
 
             if (playerHealth != null)
             {
