@@ -129,6 +129,7 @@ public class EnemyBase : MonoBehaviour
         if (player)
         {
             Vector3 toTarget = (player.position - transform.position);
+            // toTarget.x = 0f;
             toTarget.y = 0f;
 
             if (toTarget.sqrMagnitude > 0.0001f)

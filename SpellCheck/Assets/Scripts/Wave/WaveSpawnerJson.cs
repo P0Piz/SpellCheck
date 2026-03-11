@@ -187,15 +187,30 @@ public class WaveSpawnerJson : MonoBehaviour
             yield break;
         }
 
-        int count = Mathf.Max(0, g.count);
-        float interval = Mathf.Max(0f, g.interval);
-
-        for (int i = 0; i < count; i++)
+        if (g.count.Length == 1 && g.interval != 0.0)
         {
-            SpawnOne(prefab);
+            int count = Mathf.Max(0, g.count[0]);
+            float interval = Mathf.Max(0f, g.interval);
 
-            if (interval > 0f) yield return new WaitForSeconds(interval);
-            else yield return null;
+            for (int i = 0; i < count; i++)
+            {
+                SpawnOne(prefab);
+
+                if (interval > 0f) yield return new WaitForSeconds(interval);
+                else yield return null;
+            }
+        }else
+        {
+            float interval = Mathf.Max(0f, g.interval);
+
+            for (int i = 0; i < g.count.Length; i++)
+            {
+                int count = Mathf.Max(0, g.count[i]);
+                SpawnRow(prefab, count);
+
+                if (interval > 0f) yield return new WaitForSeconds(interval);
+                else yield return null;
+            }
         }
     }
 
@@ -204,6 +219,31 @@ public class WaveSpawnerJson : MonoBehaviour
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
         var go = Instantiate(prefab, sp.position, sp.rotation);
         living.Add(go);
+    }
+    private void SpawnRow(GameObject prefab, int count)
+    {
+        if (count <= 0) return;
+
+        Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        Vector3 basePosition = sp.position;
+
+        if (count == 1)
+        {
+            var go = Instantiate(prefab, basePosition, sp.rotation);
+            living.Add(go);
+            return;
+        }
+
+        float totalWidth = 8.0f;
+        float spacing = totalWidth / (count - 1);
+        float startX = basePosition.x - 4.0f;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 spawnPos = new Vector3(startX + i * spacing, basePosition.y, basePosition.z);
+            var go = Instantiate(prefab, spawnPos, sp.rotation);
+            living.Add(go);
+        }
     }
 
     public void NotifyEnemyDied(GameObject enemy)

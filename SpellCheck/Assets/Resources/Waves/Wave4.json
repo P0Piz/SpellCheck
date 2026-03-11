@@ -6,19 +6,19 @@
   "groups": [
     {
       "enemyType": "Earth",
-      "count": 1,
+      "count": [1],
       "interval": 0.5,
       "startDelay": 0.0
     },
     {
       "enemyType": "Fire",
-      "count": 1,
+      "count": [1],
       "interval": 0.8,
       "startDelay": 1.0
     },
     {
       "enemyType": "Water",
-      "count": 1,
+      "count": [1],
       "interval": 0.8,
       "startDelay": 1.5
     }

@@ -24,7 +24,7 @@ public class WaveJsonData
 public class WaveGroupJson
 {
     public string enemyType;
-    public int count = 5;
+    public int[] count = {5};
     public float interval = 0.5f;
     public float startDelay = 0f;
 }
