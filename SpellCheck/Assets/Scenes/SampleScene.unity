@@ -2474,7 +2474,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxLives: 4
   currentLives: 0
-  invincibleDuration: 0
+  invincibleDuration: 0.75
   invincibleAlpha: 0.5
   hearts:
   - {fileID: 92064229}

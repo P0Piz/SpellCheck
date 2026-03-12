@@ -128,10 +128,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f68c0cb026fdc04ea5fea1a3eea84ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBase
-  moveSpeed: 6
+  moveSpeed: 3
   turnSpeed: 360
   life: 2
   element: 2
+  isFrozen: 0
+  frozenTimer: 0
 --- !u!54 &-4048841262119112882
 Rigidbody:
   m_ObjectHideFlags: 0
