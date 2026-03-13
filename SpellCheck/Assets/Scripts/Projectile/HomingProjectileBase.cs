@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-
 using static Elements;
 
 public class HomingProjectileBase : MonoBehaviour
@@ -14,7 +13,7 @@ public class HomingProjectileBase : MonoBehaviour
 
     [Header("Movement")]
     public float moveSpeed = 14f;
-    public float turnSpeed = 360f; // degrees per second
+    public float turnSpeed = 360f;
 
     [Header("Lifetime")]
     public float maxLifetime = 6f;
@@ -27,46 +26,36 @@ public class HomingProjectileBase : MonoBehaviour
 
     [Header("Modifier - Unstable")]
     public bool unstable;
-    [Tooltip("Damage multiplier when Unstable is active.")]
     public float unstableDamageMultiplier = 1.5f;
 
     [Header("Modifier - Greater")]
     public bool greater;
-    [Tooltip("Scale multiplier when Greater is active.")]
     public float greaterScaleMultiplier = 1.75f;
-    [Tooltip("Speed multiplier when Greater is active.")]
     public float greaterSpeedMultiplier = 0.65f;
 
     [Header("Modifier - Frozen")]
     public bool frozen;
-    [Tooltip("How long the enemy is frozen for.")]
     public float frozenDuration = 2f;
 
     [Header("Modifier - Chained")]
     public bool chained;
-    [Tooltip("How many extra enemies this spell can bounce to.")]
     public int chainCount = 2;
-    [Tooltip("How far it can look for the next enemy.")]
     public float chainRange = 8f;
 
     [Header("Modifier - Rapid")]
     public bool rapid;
-    [Tooltip("How many projectiles total to create.")]
     public int rapidProjectileCount = 3;
-    [Tooltip("Spread angle across all rapid shots.")]
     public float rapidSpreadAngle = 20f;
-    [Tooltip("Scale multiplier for rapid child projectiles.")]
     public float rapidChildScaleMultiplier = 0.7f;
-    [Tooltip("Damage multiplier for rapid child projectiles.")]
     public float rapidDamageMultiplier = 0.7f;
 
     [Header("Modifier - Delayed")]
     public bool delayed;
-    [Tooltip("How long the projectile waits before moving.")]
     public float delayedDuration = 0.4f;
 
     protected Transform target;
 
+    private EnemyBase forcedTarget;
     float retargetTimer;
     float lifeTimer;
     float delayTimer;
@@ -88,7 +77,6 @@ public class HomingProjectileBase : MonoBehaviour
         if (!initialized)
             return;
 
-        // Lifetime
         lifeTimer += Time.deltaTime;
         if (lifeTimer >= maxLifetime)
         {
@@ -97,14 +85,12 @@ public class HomingProjectileBase : MonoBehaviour
             return;
         }
 
-        // Delay before movement
         if (delayTimer > 0f)
         {
             delayTimer -= Time.deltaTime;
             return;
         }
 
-        // Periodic retarget
         retargetTimer += Time.deltaTime;
         if (retargetTimer >= retargetInterval)
         {
@@ -115,6 +101,14 @@ public class HomingProjectileBase : MonoBehaviour
         HomeAndMove();
     }
 
+    public void SetForcedTarget(EnemyBase enemy)
+    {
+        forcedTarget = enemy;
+
+        if (forcedTarget != null)
+            target = forcedTarget.transform;
+    }
+
     void InitializeModifiers()
     {
         if (initialized)
@@ -122,29 +116,20 @@ public class HomingProjectileBase : MonoBehaviour
 
         initialized = true;
 
-        // Unstable
         if (unstable)
-        {
             damage *= unstableDamageMultiplier;
-        }
 
-        // Greater
         if (greater)
         {
             transform.localScale *= greaterScaleMultiplier;
             moveSpeed *= greaterSpeedMultiplier;
         }
 
-        // Chained
         remainingChains = chainCount;
 
-        // Delayed
         if (delayed)
-        {
             delayTimer = delayedDuration;
-        }
 
-        // Rapid
         if (rapid && !isRapidChild)
         {
             SpawnRapidProjectiles();
@@ -169,15 +154,27 @@ public class HomingProjectileBase : MonoBehaviour
             if (proj != null)
             {
                 proj.isRapidChild = true;
-                proj.rapid = false; // prevent recursive rapid spawning
+                proj.rapid = false;
                 proj.damage *= rapidDamageMultiplier;
                 proj.transform.localScale *= rapidChildScaleMultiplier;
+
+                if (forcedTarget != null)
+                    proj.SetForcedTarget(forcedTarget);
             }
         }
     }
 
     protected void AcquireTarget()
     {
+        if (forcedTarget != null)
+        {
+            if (forcedTarget.gameObject != null)
+            {
+                target = forcedTarget.transform;
+                return;
+            }
+        }
+
         GameObject[] enemies = GameObject.FindGameObjectsWithTag(enemyTag);
         if (enemies == null || enemies.Length == 0)
         {
@@ -185,7 +182,6 @@ public class HomingProjectileBase : MonoBehaviour
             return;
         }
 
-        // Unstable = random target
         if (unstable)
         {
             List<Transform> validTargets = new List<Transform>();
@@ -208,24 +204,23 @@ public class HomingProjectileBase : MonoBehaviour
             }
         }
 
-        // Default = closest target
         Transform best = null;
         float bestDistSqr = float.PositiveInfinity;
         Vector3 pos = transform.position;
 
         for (int i = 0; i < enemies.Length; i++)
         {
-            GameObject e = enemies[i];
-            if (!e) continue;
+            GameObject enemy = enemies[i];
+            if (!enemy) continue;
 
-            EnemyBase eb = e.GetComponent<EnemyBase>();
+            EnemyBase eb = enemy.GetComponent<EnemyBase>();
             if (eb != null && hitEnemies.Contains(eb)) continue;
 
-            float d = (e.transform.position - pos).sqrMagnitude;
+            float d = (enemy.transform.position - pos).sqrMagnitude;
             if (d < bestDistSqr)
             {
                 bestDistSqr = d;
-                best = e.transform;
+                best = enemy.transform;
             }
         }
 
@@ -238,7 +233,7 @@ public class HomingProjectileBase : MonoBehaviour
 
         if (target)
         {
-            Vector3 toTarget = (target.position - transform.position);
+            Vector3 toTarget = target.position - transform.position;
             toTarget.y = 0f;
 
             if (toTarget.sqrMagnitude > 0.0001f)
@@ -266,11 +261,9 @@ public class HomingProjectileBase : MonoBehaviour
 
     protected void HandleImpact(GameObject hitObject)
     {
-        // Let EnemyBase handle spell-vs-enemy impact so damage/freeze/chain only happens once
         if (hitObject.CompareTag(enemyTag))
             return;
 
-        // Ignore other spells
         if (hitObject.CompareTag("Spell"))
             return;
 
@@ -293,13 +286,8 @@ public class HomingProjectileBase : MonoBehaviour
 
         enemy.TakeDamage(this);
 
-        if (enemy == null)
-            return;
-
         if (frozen)
-        {
             enemy.ApplyFreeze(frozenDuration);
-        }
 
         if (chained && remainingChains > 0)
         {
@@ -308,17 +296,15 @@ public class HomingProjectileBase : MonoBehaviour
             if (nextEnemy != null)
             {
                 remainingChains--;
-
+                forcedTarget = null;
                 target = nextEnemy.transform;
 
-                Vector3 dir = (nextEnemy.transform.position - transform.position);
+                Vector3 dir = nextEnemy.transform.position - transform.position;
                 dir.y = 0f;
-                if (dir.sqrMagnitude > 0.001f)
-                {
-                    transform.rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
-                }
 
-                // small push forward so it doesn't immediately re-collide on the same spot
+                if (dir.sqrMagnitude > 0.001f)
+                    transform.rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+
                 transform.position += transform.forward * 0.5f;
                 return;
             }

@@ -700,7 +700,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 452408719}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf246376ad894ef428358439ea23e755, type: 3}
   m_Name: 
@@ -752,6 +752,7 @@ MonoBehaviour:
   autoStartFirstWave: 0
   loopWaves: 0
   typing: {fileID: 1024456093}
+  spellDatabase: {fileID: 11400000, guid: d1f229036f41b2643a6fbb8b2feeb722, type: 2}
 --- !u!114 &452408723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -782,7 +783,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &496539210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2037,7 +2038,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 21.2}
+  m_AnchoredPosition: {x: 499.3, y: 21.2}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &871394079
@@ -2460,6 +2461,7 @@ MonoBehaviour:
   database: {fileID: 11400000, guid: d1f229036f41b2643a6fbb8b2feeb722, type: 2}
   spawnPoint: {fileID: 1417103808}
   modifierSelector: {fileID: 452408723}
+  waveSpawner: {fileID: 452408722}
 --- !u!114 &1024456094
 MonoBehaviour:
   m_ObjectHideFlags: 0

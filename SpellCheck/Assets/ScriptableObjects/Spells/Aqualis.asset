@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b83af972a6d9de4f8fe2b8a4dbd7de7, type: 3}
   m_Name: Aqualis
   m_EditorClassIdentifier: Assembly-CSharp::SpellDefinition
-  spellName: A
-  Description: Send out a refined arcane tide projectile
+  spellName: Aqua
+  description: 
+  element: 2
   spawnPrefab: {fileID: 8581482236034475633, guid: 7515498b63b03dd449f8b6a0644e893b, type: 3}
   spawnOffset: {x: 0, y: 0, z: 0}
   parentToSpawnPoint: 0

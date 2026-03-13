@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Bloom
   m_EditorClassIdentifier: Assembly-CSharp::SpellDefinition
   spellName: Bloom
-  Description: Heal 1 extra health
+  description: 
+  element: 0
   spawnPrefab: {fileID: 0}
   spawnOffset: {x: 0, y: 0, z: 0}
   parentToSpawnPoint: 0

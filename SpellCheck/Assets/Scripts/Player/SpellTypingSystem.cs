@@ -1,13 +1,11 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class SpellTypingSystem : MonoBehaviour
 {
-    [Header("UI")]
+    [Header("Hidden Input")]
     public TMP_InputField inputField;
-
-    [Header("Spell Data")]
-    public SpellDatabaseSO database;
 
     [Header("Where spells spawn from")]
     public Transform spawnPoint;
@@ -15,70 +13,71 @@ public class SpellTypingSystem : MonoBehaviour
     [Header("Optional")]
     public NextSpellModifierSelector modifierSelector;
 
-    string lastValidText = "";
+    [Header("Wave / Targeting")]
+    public WaveSpawnerJson waveSpawner;
+
+    [Header("Timing")]
+    [SerializeField] private float wrongClearDelay = 0.15f;
+
+    private string lastValidText = "";
+    private bool isCasting;
+    private bool isClearingWrongInput;
+    private Coroutine wrongInputRoutine;
+    private EnemyBase lastPreviewEnemy;
 
     void Awake()
     {
-        inputField.contentType = TMP_InputField.ContentType.Custom;
-        inputField.characterValidation = TMP_InputField.CharacterValidation.None;
-        inputField.onValidateInput += ValidateInput;
+        if (inputField != null)
+        {
+            inputField.contentType = TMP_InputField.ContentType.Custom;
+            inputField.characterValidation = TMP_InputField.CharacterValidation.None;
+            inputField.onValidateInput += ValidateInput;
+            inputField.richText = false;
+            inputField.onValueChanged.AddListener(OnInputChanged);
+        }
+    }
 
-        inputField.richText = false;
+    void Start()
+    {
+        ForceFocus();
+    }
+
+    void OnDestroy()
+    {
+        if (inputField != null)
+            inputField.onValueChanged.RemoveListener(OnInputChanged);
     }
 
     private char ValidateInput(string text, int charIndex, char addedChar)
     {
         if (char.IsLetter(addedChar))
-            return addedChar;
+            return char.ToLower(addedChar);
 
         if (addedChar == ' ')
         {
-            if (text.Length == 0) return '\0';
-            if (text.Length > 0 && text[text.Length - 1] == ' ') return '\0';
+            if (text.Length == 0)
+                return '\0';
+
+            if (text[text.Length - 1] == ' ')
+                return '\0';
+
             return addedChar;
         }
 
         return '\0';
     }
 
-    private string ValidateCommand(string text, int charIndex, char addedChar, int command)
-    {
-        const int Paste = 1;
-
-        if (command == Paste)
-            return null;
-
-        return text;
-    }
-
     void Update()
     {
-        if (!inputField.isFocused)
+        if (inputField != null && !inputField.isFocused)
             ForceFocus();
-
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
-            Input.GetKeyDown(KeyCode.V))
-        {
-            return;
-        }
-
-        if ((Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand)) &&
-            Input.GetKeyDown(KeyCode.V))
-        {
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Insert) && Input.GetKey(KeyCode.LeftShift))
-        {
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Return))
-            AttemptSpell();
     }
 
     void LateUpdate()
     {
+        if (inputField == null)
+            return;
+
         if (inputField.text.Length > lastValidText.Length + 1)
         {
             inputField.text = lastValidText;
@@ -88,57 +87,159 @@ public class SpellTypingSystem : MonoBehaviour
         lastValidText = inputField.text;
     }
 
-    void AttemptSpell()
+    void OnInputChanged(string rawText)
     {
-        string typed = inputField.text;
+        if (isCasting || isClearingWrongInput)
+            return;
 
-        SpellDefinition spell = database ? database.GetSpell(typed) : null;
-
-        if (spell == null)
+        if (waveSpawner == null)
         {
-            Debug.Log("Invalid Spell: " + typed);
-            ClearAndRefocus();
+            ClearLastPreview();
             return;
         }
 
-        Debug.Log("Spell Cast: " + spell.spellName);
-
-        if (spell.healAmount > 0)
+        EnemyBase activeEnemy = waveSpawner.GetActiveEnemy();
+        if (activeEnemy == null)
         {
-            PlayerHealth player = FindObjectOfType<PlayerHealth>();
-            if (player != null)
+            ClearLastPreview();
+            return;
+        }
+
+        SpellDefinition assignedSpell = activeEnemy.GetAssignedSpell();
+        if (assignedSpell == null)
+        {
+            activeEnemy.ClearTypedPreview();
+            lastPreviewEnemy = activeEnemy;
+            return;
+        }
+
+        if (lastPreviewEnemy != null && lastPreviewEnemy != activeEnemy)
+            lastPreviewEnemy.ClearTypedPreview();
+
+        lastPreviewEnemy = activeEnemy;
+
+        string typed = string.IsNullOrWhiteSpace(rawText) ? "" : rawText.ToLower();
+        string targetWord = assignedSpell.spellName.ToLower().Trim();
+
+        activeEnemy.SetTypedPreview(typed);
+
+        if (string.IsNullOrEmpty(typed))
+            return;
+
+        bool wrong = false;
+        int checkLength = Mathf.Min(typed.Length, targetWord.Length);
+
+        for (int i = 0; i < checkLength; i++)
+        {
+            if (typed[i] != targetWord[i])
             {
-                player.Heal(spell.healAmount);
+                wrong = true;
+                break;
             }
         }
 
-        if (spell.spawnPrefab != null && spawnPoint != null)
+        if (typed.Length > targetWord.Length)
+            wrong = true;
+
+        if (wrong)
         {
-            Vector3 pos = spawnPoint.TransformPoint(spell.spawnOffset);
+            if (wrongInputRoutine != null)
+                StopCoroutine(wrongInputRoutine);
 
-            GameObject spawned = Instantiate(spell.spawnPrefab, pos, spawnPoint.rotation);
+            wrongInputRoutine = StartCoroutine(ClearWrongInputAfterDelay(activeEnemy));
+            return;
+        }
 
-            if (spell.parentToSpawnPoint)
+        if (typed == targetWord)
+            CastAssignedSpell(activeEnemy, assignedSpell);
+    }
+
+    IEnumerator ClearWrongInputAfterDelay(EnemyBase activeEnemy)
+    {
+        isClearingWrongInput = true;
+
+        yield return new WaitForSeconds(wrongClearDelay);
+
+        ClearAndRefocus(activeEnemy);
+
+        isClearingWrongInput = false;
+        wrongInputRoutine = null;
+    }
+
+    void CastAssignedSpell(EnemyBase activeEnemy, SpellDefinition assignedSpell)
+    {
+        if (isCasting)
+            return;
+
+        isCasting = true;
+
+        if (wrongInputRoutine != null)
+        {
+            StopCoroutine(wrongInputRoutine);
+            wrongInputRoutine = null;
+        }
+
+        if (activeEnemy != null)
+            activeEnemy.ClearTypedPreview();
+
+        if (assignedSpell.healAmount > 0)
+        {
+            PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
+            if (playerHealth != null)
+                playerHealth.Heal(assignedSpell.healAmount);
+        }
+
+        if (assignedSpell.spawnPrefab != null && spawnPoint != null)
+        {
+            Vector3 pos = spawnPoint.TransformPoint(assignedSpell.spawnOffset);
+            GameObject spawned = Instantiate(assignedSpell.spawnPrefab, pos, spawnPoint.rotation);
+
+            if (assignedSpell.parentToSpawnPoint)
                 spawned.transform.SetParent(spawnPoint, true);
 
             HomingProjectileBase projectile = spawned.GetComponent<HomingProjectileBase>();
-            if (projectile != null && modifierSelector != null)
+            if (projectile != null)
             {
-                modifierSelector.ApplyModifierToProjectile(projectile);
+                projectile.SetForcedTarget(activeEnemy);
+
+                if (modifierSelector != null)
+                    modifierSelector.ApplyModifierToProjectile(projectile);
             }
         }
 
+        if (waveSpawner != null)
+            waveSpawner.AdvanceToNextEnemyImmediately(activeEnemy);
+
         ClearAndRefocus();
+        isCasting = false;
     }
 
-    void ClearAndRefocus()
+    void ClearAndRefocus(EnemyBase activeEnemy = null)
     {
-        inputField.text = "";
+        if (inputField != null)
+            inputField.text = "";
+
+        lastValidText = "";
+
+        if (activeEnemy != null)
+            activeEnemy.ClearTypedPreview();
+
         ForceFocus();
+    }
+
+    void ClearLastPreview()
+    {
+        if (lastPreviewEnemy != null)
+            lastPreviewEnemy.ClearTypedPreview();
+
+        lastPreviewEnemy = null;
     }
 
     void ForceFocus()
     {
+        if (inputField == null)
+            return;
+
         inputField.Select();
         inputField.ActivateInputField();
         inputField.caretPosition = inputField.text.Length;

@@ -4,17 +4,20 @@ using UnityEngine;
 public class SpellDefinition : ScriptableObject
 {
     [Header("ID")]
-    public string spellName; // what the player types (e.g. "fireball")
+    public string spellName;
 
     [Header("Description")]
-    public string Description; // what the spell does
+    [TextArea]
+    public string description;
+
+    [Header("Spell Info")]
+    public Elements.elements element = Elements.elements.Null;
 
     [Header("Spawn")]
-    public GameObject spawnPrefab;          // leave null if this spell doesn't spawn anything
-    public Vector3 spawnOffset;             // local offset from spawn point
-    public bool parentToSpawnPoint = false; // useful for VFX sticking to hand/ground point
+    public GameObject spawnPrefab;
+    public Vector3 spawnOffset;
+    public bool parentToSpawnPoint = false;
 
     [Header("Healing")]
     public int healAmount;
-
 }
