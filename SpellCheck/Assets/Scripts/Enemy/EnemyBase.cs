@@ -50,7 +50,7 @@ public class EnemyBase : MonoBehaviour
         UpdateFrozenState();
 
         if (!isFrozen)
-            HomeAndMove();
+            MoveForward();
     }
 
     void UpdateFrozenState()
@@ -206,24 +206,8 @@ public class EnemyBase : MonoBehaviour
         player = best;
     }
 
-    void HomeAndMove()
+    void MoveForward()
     {
-        Vector3 forwardDir = transform.forward;
-
-        if (player)
-        {
-            Vector3 toTarget = player.position - transform.position;
-            toTarget.y = 0f;
-
-            if (toTarget.sqrMagnitude > 0.0001f)
-            {
-                Vector3 desiredDir = toTarget.normalized;
-                float maxRadians = turnSpeed * Mathf.Deg2Rad * Time.deltaTime;
-                Vector3 newDir = Vector3.RotateTowards(forwardDir, desiredDir, maxRadians, 0f);
-                transform.rotation = Quaternion.LookRotation(newDir, Vector3.up);
-            }
-        }
-
         transform.position += transform.forward * moveSpeed * Time.deltaTime;
     }
 

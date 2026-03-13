@@ -289,6 +289,7 @@ GameObject:
   - component: {fileID: 107070548}
   - component: {fileID: 107070547}
   - component: {fileID: 107070546}
+  - component: {fileID: 107070549}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Player
@@ -328,7 +329,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5
   m_Height: 2
@@ -391,6 +392,27 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 107070544}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!65 &107070549
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 107070544}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10.01, y: 2, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &108638198
 GameObject:
   m_ObjectHideFlags: 0
@@ -753,6 +775,8 @@ MonoBehaviour:
   loopWaves: 0
   typing: {fileID: 1024456093}
   spellDatabase: {fileID: 11400000, guid: d1f229036f41b2643a6fbb8b2feeb722, type: 2}
+  playerTag: Player
+  updateClosestTargetEveryFrame: 1
 --- !u!114 &452408723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2458,10 +2482,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpellTypingSystem
   inputField: {fileID: 871394079}
-  database: {fileID: 11400000, guid: d1f229036f41b2643a6fbb8b2feeb722, type: 2}
   spawnPoint: {fileID: 1417103808}
   modifierSelector: {fileID: 452408723}
   waveSpawner: {fileID: 452408722}
+  wrongClearDelay: 0.15
 --- !u!114 &1024456094
 MonoBehaviour:
   m_ObjectHideFlags: 0
