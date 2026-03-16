@@ -13,6 +13,10 @@ public class EnemyBase : MonoBehaviour
     [Header("Element")]
     public Elements.elements element = elements.Null;
 
+    [Header("Drops")]
+    public int coinDrop = 1;
+    public int scoreDrop = 100;
+
     [Header("Spell Prompt")]
     public EnemySpellPrompt spellPrompt;
     public SpellDatabaseSO spellDatabase;
