@@ -10,9 +10,6 @@ public class SpellTypingSystem : MonoBehaviour
     [Header("Where spells spawn from")]
     public Transform spawnPoint;
 
-    [Header("Optional")]
-    public NextSpellModifierSelector modifierSelector;
-
     [Header("Wave / Targeting")]
     public WaveSpawnerJson waveSpawner;
 
@@ -201,9 +198,6 @@ public class SpellTypingSystem : MonoBehaviour
             if (projectile != null)
             {
                 projectile.SetForcedTarget(activeEnemy);
-
-                if (modifierSelector != null)
-                    modifierSelector.ApplyModifierToProjectile(projectile);
             }
         }
 

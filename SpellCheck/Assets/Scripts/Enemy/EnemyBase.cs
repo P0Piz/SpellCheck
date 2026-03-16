@@ -21,10 +21,6 @@ public class EnemyBase : MonoBehaviour
     public EnemySpellPrompt spellPrompt;
     public SpellDatabaseSO spellDatabase;
 
-    [Header("Status")]
-    public bool isFrozen;
-    public float frozenTimer;
-
     protected Transform player;
     protected WaveSpawnerJson spawner;
 
@@ -51,30 +47,7 @@ public class EnemyBase : MonoBehaviour
 
     void Update()
     {
-        UpdateFrozenState();
-
-        if (!isFrozen)
-            MoveForward();
-    }
-
-    void UpdateFrozenState()
-    {
-        if (frozenTimer > 0f)
-        {
-            frozenTimer -= Time.deltaTime;
-
-            if (frozenTimer <= 0f)
-            {
-                frozenTimer = 0f;
-                isFrozen = false;
-            }
-        }
-    }
-
-    public void ApplyFreeze(float duration)
-    {
-        isFrozen = true;
-        frozenTimer = Mathf.Max(frozenTimer, duration);
+        MoveForward();
     }
 
     public void TakeDamage(HomingProjectileBase sourceProjectile)
