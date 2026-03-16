@@ -4,23 +4,29 @@
   "postWaveDelay": 2.0,
   "requireKillAllToComplete": true,
   "groups": [
-    {
-      "enemyType": "Earth",
-      "count": [3],
-      "interval": 0.5,
-      "startDelay": 0.0
-    },
-    {
-      "enemyType": "Fire",
-      "count": [2],
-      "interval": 0.8,
-      "startDelay": 1.0
-    },
-    {
-      "enemyType": "Water",
-      "count": [3],
-      "interval": 0.8,
-      "startDelay": 1.5
-    }
-  ]
+      {
+        "enemyType": "Earth",
+        "count": [ 1, 2, 3 ],
+        "interval": 1,
+        "startDelay": 0
+      },
+      {
+        "enemyType": "Fire",
+        "count": [ 2, 1 ],
+        "interval": 1.5,
+        "startDelay": 0.5
+      },
+      {
+        "enemyType": "Water",
+        "count": [ 1, 1, 2, 1, 2],
+        "interval": 2,
+        "startDelay": 1
+      },
+      {
+        "enemyType": "Earth",
+        "count": [ 2, 2, 1 ],
+        "interval": 2,
+        "startDelay": 0
+      }
+    ]
 }

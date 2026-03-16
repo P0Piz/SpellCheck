@@ -7,19 +7,19 @@
     {
       "enemyType": "Earth",
       "count": [1, 2],
-      "interval": 0.5,
+      "interval": 1,
       "startDelay": 0.0
     },
     {
       "enemyType": "Fire",
-      "count": [1, 2],
-      "interval": 0.5,
+      "count": [1, 1],
+      "interval": 1,
       "startDelay": 1.0
     },
     {
       "enemyType": "Water",
-      "count": [2],
-      "interval": 0.5,
+      "count": [2, 1, 2],
+      "interval": 1,
       "startDelay": 1.5
     }
   ]

@@ -16,6 +16,15 @@ public class SpellTypingSystem : MonoBehaviour
     [Header("Timing")]
     [SerializeField] private float wrongClearDelay = 0.15f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip typeSound;
+    [SerializeField] private AudioClip wrongSound;
+    [SerializeField] private Vector2 typePitchRange = new Vector2(0.95f, 1.05f);
+    [SerializeField] private Vector2 wrongPitchRange = new Vector2(0.9f, 1.0f);
+    [SerializeField] private float typeVolume = 1f;
+    [SerializeField] private float wrongVolume = 1f;
+
     private string lastValidText = "";
     private bool isCasting;
     private bool isClearingWrongInput;
@@ -32,6 +41,9 @@ public class SpellTypingSystem : MonoBehaviour
             inputField.richText = false;
             inputField.onValueChanged.AddListener(OnInputChanged);
         }
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -140,12 +152,16 @@ public class SpellTypingSystem : MonoBehaviour
 
         if (wrong)
         {
+            PlayWrongSound();
+
             if (wrongInputRoutine != null)
                 StopCoroutine(wrongInputRoutine);
 
             wrongInputRoutine = StartCoroutine(ClearWrongInputAfterDelay(activeEnemy));
             return;
         }
+
+        PlayTypingSoundIfNewCharacter(rawText);
 
         if (typed == targetWord)
             CastAssignedSpell(activeEnemy, assignedSpell);
@@ -237,5 +253,30 @@ public class SpellTypingSystem : MonoBehaviour
         inputField.Select();
         inputField.ActivateInputField();
         inputField.caretPosition = inputField.text.Length;
+    }
+
+    void PlayTypingSoundIfNewCharacter(string currentText)
+    {
+        if (string.IsNullOrEmpty(currentText))
+            return;
+
+        if (currentText.Length <= lastValidText.Length)
+            return;
+
+        PlaySound(typeSound, typePitchRange, typeVolume);
+    }
+
+    void PlayWrongSound()
+    {
+        PlaySound(wrongSound, wrongPitchRange, wrongVolume);
+    }
+
+    void PlaySound(AudioClip clip, Vector2 pitchRange, float volume)
+    {
+        if (audioSource == null || clip == null)
+            return;
+
+        audioSource.pitch = Random.Range(pitchRange.x, pitchRange.y);
+        audioSource.PlayOneShot(clip, volume);
     }
 }

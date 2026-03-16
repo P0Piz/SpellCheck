@@ -22,6 +22,10 @@ public class WaveSpawnerJson : MonoBehaviour
     public Button nextWaveButton;
     public TMP_Text statusText;
 
+    [Header("End Screen")]
+    public GameObject endScreenPanel;
+    public TMP_Text endScreenText;
+
     [Header("Behaviour")]
     public bool autoStartFirstWave = false;
     public bool loopWaves = false;
@@ -52,6 +56,7 @@ public class WaveSpawnerJson : MonoBehaviour
         FindPlayer();
         SetButtonInteractable(true);
         SetStatus("Ready");
+        HideEndScreen();
     }
 
     void Start()
@@ -116,15 +121,18 @@ public class WaveSpawnerJson : MonoBehaviour
             if (loopWaves)
             {
                 currentIndex = 0;
+                HideEndScreen();
             }
             else
             {
                 SetStatus("All waves complete");
                 SetButtonInteractable(false);
+                ShowEndScreen("You Win!\nAll rounds complete.");
                 return;
             }
         }
 
+        HideEndScreen();
         StartCoroutine(RunWaveRoutine(waveFiles[currentIndex]));
     }
 
@@ -198,6 +206,7 @@ public class WaveSpawnerJson : MonoBehaviour
         {
             SetStatus("All waves complete");
             SetButtonInteractable(false);
+            ShowEndScreen("You Win!");
         }
         else
         {
@@ -438,5 +447,20 @@ public class WaveSpawnerJson : MonoBehaviour
     {
         if (statusText != null)
             statusText.text = msg;
+    }
+
+    void ShowEndScreen(string message)
+    {
+        if (endScreenPanel != null)
+            endScreenPanel.SetActive(true);
+
+        if (endScreenText != null)
+            endScreenText.text = message;
+    }
+
+    void HideEndScreen()
+    {
+        if (endScreenPanel != null)
+            endScreenPanel.SetActive(false);
     }
 }

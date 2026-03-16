@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  - {fileID: 6867445792338342548, guid: 44cf7485715c57843bc839d3ba2c9432, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -109,8 +109,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Spell
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 44cf7485715c57843bc839d3ba2c9432, type: 2}
+  m_sharedMaterial: {fileID: 6867445792338342548, guid: 44cf7485715c57843bc839d3ba2c9432, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -197,6 +197,9 @@ MonoBehaviour:
   promptText: {fileID: 1133514933680576285}
   worldOffset: {x: 0, y: 0, z: 0}
   faceCamera: 1
+  untypedColor: '#FFFFFF'
+  correctColor: '#00FF00'
+  incorrectColor: '#FF8800'
 --- !u!1 &5833726695288218834
 GameObject:
   m_ObjectHideFlags: 0
@@ -326,14 +329,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f68c0cb026fdc04ea5fea1a3eea84ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBase
-  moveSpeed: 5
+  moveSpeed: 4
   turnSpeed: 360
   life: 2
   element: 3
+  coinDrop: 1
+  scoreDrop: 100
   spellPrompt: {fileID: 6647654283941836502}
   spellDatabase: {fileID: 11400000, guid: d1f229036f41b2643a6fbb8b2feeb722, type: 2}
-  isFrozen: 0
-  frozenTimer: 0
 --- !u!54 &2869983055736231009
 Rigidbody:
   m_ObjectHideFlags: 0
