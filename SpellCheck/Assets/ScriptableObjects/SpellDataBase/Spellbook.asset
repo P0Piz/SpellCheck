@@ -13,7 +13,16 @@ MonoBehaviour:
   m_Name: Spellbook
   m_EditorClassIdentifier: Assembly-CSharp::SpellDatabaseSO
   spells:
-  - {fileID: 11400000, guid: 0faa897dc4254ef4aad3f5771cdb542a, type: 2}
   - {fileID: 11400000, guid: 0f0ccb0cc31c49743b157d72b4c6d088, type: 2}
+  - {fileID: 11400000, guid: 81cf44928064721408f3fd994add16a6, type: 2}
+  - {fileID: 11400000, guid: 760f1752a6f0f5340806d9bf7f1b5dac, type: 2}
+  - {fileID: 11400000, guid: 2843d6139fef3d24eb821257198783aa, type: 2}
+  - {fileID: 11400000, guid: 0faa897dc4254ef4aad3f5771cdb542a, type: 2}
+  - {fileID: 11400000, guid: 179da90323af63d44bc1e9bd73eb4fa9, type: 2}
+  - {fileID: 11400000, guid: f2389aa603f0c864ea21b375384896e4, type: 2}
+  - {fileID: 11400000, guid: 66b01af4dec1a1548a77715f999aa8c4, type: 2}
   - {fileID: 11400000, guid: 87f00d8aa61b940488bfffd280f321f5, type: 2}
+  - {fileID: 11400000, guid: 0d890b0e218797542a8bd99aea495811, type: 2}
+  - {fileID: 11400000, guid: 1f534b272299fca44a0cf3a4abca4966, type: 2}
+  - {fileID: 11400000, guid: 314a8682d20506a479b1f72afcf49a8b, type: 2}
   - {fileID: 11400000, guid: 2488acc06e8e257428e61e2e3903328f, type: 2}
