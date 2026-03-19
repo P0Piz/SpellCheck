@@ -25,6 +25,12 @@ public class SpellTypingSystem : MonoBehaviour
     [SerializeField] private float typeVolume = 1f;
     [SerializeField] private float wrongVolume = 1f;
 
+    [Header("Animation")]
+    [SerializeField] private Animator playerAnimator;
+    [SerializeField] private string windupBoolName = "IsWindingUp";
+    [SerializeField] private string castTriggerName = "Cast";
+    [SerializeField] private string failTriggerName = "Fail";
+
     private string lastValidText = "";
     private bool isCasting;
     private bool isClearingWrongInput;
@@ -49,6 +55,7 @@ public class SpellTypingSystem : MonoBehaviour
     void Start()
     {
         ForceFocus();
+        SetWindup(false);
     }
 
     void OnDestroy()
@@ -104,6 +111,7 @@ public class SpellTypingSystem : MonoBehaviour
         if (waveSpawner == null)
         {
             ClearLastPreview();
+            SetWindup(false);
             return;
         }
 
@@ -111,6 +119,7 @@ public class SpellTypingSystem : MonoBehaviour
         if (activeEnemy == null)
         {
             ClearLastPreview();
+            SetWindup(false);
             return;
         }
 
@@ -119,6 +128,7 @@ public class SpellTypingSystem : MonoBehaviour
         {
             activeEnemy.ClearTypedPreview();
             lastPreviewEnemy = activeEnemy;
+            SetWindup(false);
             return;
         }
 
@@ -133,7 +143,10 @@ public class SpellTypingSystem : MonoBehaviour
         activeEnemy.SetTypedPreview(typed);
 
         if (string.IsNullOrEmpty(typed))
+        {
+            SetWindup(false);
             return;
+        }
 
         bool wrong = false;
         int checkLength = Mathf.Min(typed.Length, targetWord.Length);
@@ -152,6 +165,8 @@ public class SpellTypingSystem : MonoBehaviour
 
         if (wrong)
         {
+            SetWindup(false);
+            TriggerFailAnimation();
             PlayWrongSound();
 
             if (wrongInputRoutine != null)
@@ -163,8 +178,20 @@ public class SpellTypingSystem : MonoBehaviour
 
         PlayTypingSoundIfNewCharacter(rawText);
 
+        // If partially correct, start / keep windup animation going
+        if (typed.Length < targetWord.Length)
+        {
+            SetWindup(true);
+            return;
+        }
+
+        // If exact match, cast
         if (typed == targetWord)
+        {
+            SetWindup(false);
+            TriggerCastAnimation();
             CastAssignedSpell(activeEnemy, assignedSpell);
+        }
     }
 
     IEnumerator ClearWrongInputAfterDelay(EnemyBase activeEnemy)
@@ -234,6 +261,7 @@ public class SpellTypingSystem : MonoBehaviour
         if (activeEnemy != null)
             activeEnemy.ClearTypedPreview();
 
+        SetWindup(false);
         ForceFocus();
     }
 
@@ -278,5 +306,31 @@ public class SpellTypingSystem : MonoBehaviour
 
         audioSource.pitch = Random.Range(pitchRange.x, pitchRange.y);
         audioSource.PlayOneShot(clip, volume);
+    }
+
+    void SetWindup(bool value)
+    {
+        if (playerAnimator == null || string.IsNullOrEmpty(windupBoolName))
+            return;
+
+        playerAnimator.SetBool(windupBoolName, value);
+    }
+
+    void TriggerCastAnimation()
+    {
+        if (playerAnimator == null || string.IsNullOrEmpty(castTriggerName))
+            return;
+
+        playerAnimator.ResetTrigger(failTriggerName);
+        playerAnimator.SetTrigger(castTriggerName);
+    }
+
+    void TriggerFailAnimation()
+    {
+        if (playerAnimator == null || string.IsNullOrEmpty(failTriggerName))
+            return;
+
+        playerAnimator.ResetTrigger(castTriggerName);
+        playerAnimator.SetTrigger(failTriggerName);
     }
 }
