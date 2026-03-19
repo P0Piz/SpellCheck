@@ -224,9 +224,9 @@ public class SpellTypingSystem : MonoBehaviour
 
         if (assignedSpell.healAmount > 0)
         {
-            PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
-            if (playerHealth != null)
-                playerHealth.Heal(assignedSpell.healAmount);
+            PlayerManager playerManager = FindObjectOfType<PlayerManager>();
+            if (playerManager != null)
+                playerManager.Heal(assignedSpell.healAmount);
         }
 
         if (assignedSpell.spawnPrefab != null && spawnPoint != null)
