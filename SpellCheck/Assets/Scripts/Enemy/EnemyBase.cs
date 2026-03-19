@@ -67,6 +67,13 @@ public class EnemyBase : MonoBehaviour
             if (spawner != null)
                 spawner.NotifyEnemyDied(gameObject);
 
+            PlayerManager playerManager = player.GetComponent<PlayerManager>();
+
+            if (playerManager == null)
+                playerManager = player.GetComponentInParent<PlayerManager>();
+
+            playerManager.AddScore(scoreDrop);
+
             Destroy(gameObject);
         }
     }
@@ -211,13 +218,13 @@ public class EnemyBase : MonoBehaviour
         }
         else if (hitObject.CompareTag("Player"))
         {
-            PlayerHealth playerHealth = hitObject.GetComponent<PlayerHealth>();
+            PlayerManager playerManager = hitObject.GetComponent<PlayerManager>();
 
-            if (playerHealth == null)
-                playerHealth = hitObject.GetComponentInParent<PlayerHealth>();
+            if (playerManager == null)
+                playerManager = hitObject.GetComponentInParent<PlayerManager>();
 
-            if (playerHealth != null)
-                playerHealth.TakeDamage(1);
+            if (playerManager != null)
+                playerManager.TakeDamage(1);
 
             Destroy(gameObject);
         }

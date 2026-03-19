@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class PlayerHealth : MonoBehaviour
+public class PlayerManager : MonoBehaviour
 {
     [Header("Health")]
     public int maxLives = 4;
@@ -13,6 +13,9 @@ public class PlayerHealth : MonoBehaviour
     public float invincibleDuration = 1f;
     public float invincibleAlpha = 0.5f;
     private bool invincible = false;
+
+    [Header("Score")]
+    public int currentScore = 0;
 
     [Header("Heart UI")]
     public Image[] hearts;
@@ -38,6 +41,36 @@ public class PlayerHealth : MonoBehaviour
         RefreshHearts();
         SetOpacity(1f);
         Time.timeScale = 1f;
+    }
+
+    public void AddScore(int amount)
+    {
+        currentScore += amount;
+        Debug.Log("Score increased! Current Score: " + currentScore);
+    }
+
+    public void ResetScore()
+    {
+        currentScore = 0;
+        Debug.Log("Score reset! Current Score: " + currentScore);
+    }
+
+    public void MinusScore(int amount)
+    {
+        if (HasEnoughScore(amount))
+        {
+            currentScore -= amount;
+            Debug.Log("Score decreased! Current Score: " + currentScore);
+        }
+        else
+        {
+            Debug.Log("Not enough score to decrease! Current Score: " + currentScore);
+        }
+    }
+
+    public bool HasEnoughScore(int amount)
+    {
+        return currentScore >= amount;
     }
 
     public void TakeDamage(int amount)
