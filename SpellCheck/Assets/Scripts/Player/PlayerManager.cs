@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using TMPro;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class PlayerManager : MonoBehaviour
 
     [Header("Score")]
     public int currentScore = 0;
+    public TMP_Text scoreDisplay;
 
     [Header("Heart UI")]
     public Image[] hearts;
@@ -40,6 +42,7 @@ public class PlayerManager : MonoBehaviour
 
         RefreshHearts();
         SetOpacity(1f);
+        updateScoreUI();
         Time.timeScale = 1f;
     }
 
@@ -47,12 +50,19 @@ public class PlayerManager : MonoBehaviour
     {
         currentScore += amount;
         Debug.Log("Score increased! Current Score: " + currentScore);
+        updateScoreUI();
     }
 
     public void ResetScore()
     {
         currentScore = 0;
         Debug.Log("Score reset! Current Score: " + currentScore);
+        updateScoreUI();
+    }
+
+    void updateScoreUI()
+    {
+        scoreDisplay.text = "Score: " + currentScore.ToString();
     }
 
     public void MinusScore(int amount)
