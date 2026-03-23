@@ -18,6 +18,7 @@ public class PlayerManager : MonoBehaviour
     [Header("Score")]
     public int currentScore = 0;
     public TMP_Text scoreDisplay;
+    public Leaderboard leaderboard = new Leaderboard();
 
     [Header("Heart UI")]
     public Image[] hearts;
@@ -29,6 +30,48 @@ public class PlayerManager : MonoBehaviour
 
     [Header("Player Visuals")]
     public MeshRenderer[] playerRenderers;
+
+
+    public class Leaderboard
+    {
+        private LeaderboardEntry[] entries = new LeaderboardEntry[10];
+
+        public Leaderboard()
+        {
+            //TODO Load leaderboard from file or similar
+            for (int i = 0; i < entries.Length; i++)
+            {
+                entries[i] = new LeaderboardEntry { playerName = "Empty", score = 0 };
+            }
+        }
+
+        public class LeaderboardEntry
+        {
+            public string playerName;
+            public int score;
+        }
+
+        public void AddEntry(string playerName, int score)
+        {
+            for (int ii = 0; ii < entries.Length; ii++)
+            {
+                if (score > entries[ii].score)
+                {
+                    for (int jj = entries.Length - 1; jj > ii; jj--)
+                    {
+                        entries[jj] = entries[jj - 1];
+                    }
+                    entries[ii] = new LeaderboardEntry { playerName = playerName, score = score };
+                    break;
+                }
+            }
+        }
+
+        public LeaderboardEntry[] GetLeaderboard()
+        {
+            return entries.clone() as LeaderboardEntry[];
+        }
+    }
 
     void Start()
     {
@@ -135,6 +178,9 @@ public class PlayerManager : MonoBehaviour
 
     void PlayerDied()
     {
+        //TODO Ask for player name and add to leaderboard
+        leaderboard.AddEntry("Player", currentScore);
+
         Debug.Log("Player has died");
 
         SetOpacity(1f);
