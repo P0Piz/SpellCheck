@@ -6,6 +6,9 @@ using TMPro;
 
 public class PlayerManager : MonoBehaviour
 {
+    [Header("DeleteOnDeath")]
+    public GameObject inputfeild;
+
     [Header("Health")]
     public int maxLives = 4;
     public int currentLives;
@@ -18,58 +21,90 @@ public class PlayerManager : MonoBehaviour
     [Header("Score")]
     public int currentScore = 0;
     public TMP_Text scoreDisplay;
-    public Leaderboard leaderboard = new Leaderboard();
 
     [Header("Heart UI")]
     public Image[] hearts;
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
-    [Header("Death UI")]
-    public GameObject restartScreen;
+    [Header("Death Flow UI")]
+    public GameObject nameEntryPanel;
+    public GameObject leaderboardPanel;
+    public GameObject restartPanel;
+
+    [Header("Name Entry UI")]
+    public TMP_InputField nameInputField;
+    public Button submitScoreButton;
+
+    [Header("Leaderboard UI")]
+    public TMP_Text leaderboardDisplay;
+    public Button continueButton;
 
     [Header("Player Visuals")]
     public MeshRenderer[] playerRenderers;
 
+    private bool waitingForName = false;
+    private bool scoreSubmitted = false;
 
+    private int lastSubmittedScore = -1;
+    private string lastSubmittedName = "";
+
+    public static Leaderboard leaderboard;
+
+    void Awake()
+    {
+        if (leaderboard == null)
+            leaderboard = new Leaderboard();
+    }
+
+    [System.Serializable]
     public class Leaderboard
     {
         private LeaderboardEntry[] entries = new LeaderboardEntry[10];
 
-        public Leaderboard()
-        {
-            //TODO Load leaderboard from file or similar
-            for (int i = 0; i < entries.Length; i++)
-            {
-                entries[i] = new LeaderboardEntry { playerName = "Empty", score = 0 };
-            }
-        }
-
+        [System.Serializable]
         public class LeaderboardEntry
         {
             public string playerName;
             public int score;
         }
 
+        public Leaderboard()
+        {
+            for (int i = 0; i < entries.Length; i++)
+            {
+                entries[i] = new LeaderboardEntry
+                {
+                    playerName = "Empty",
+                    score = 0
+                };
+            }
+        }
+
         public void AddEntry(string playerName, int score)
         {
-            for (int ii = 0; ii < entries.Length; ii++)
+            for (int i = 0; i < entries.Length; i++)
             {
-                if (score > entries[ii].score)
+                if (score > entries[i].score)
                 {
-                    for (int jj = entries.Length - 1; jj > ii; jj--)
+                    for (int j = entries.Length - 1; j > i; j--)
                     {
-                        entries[jj] = entries[jj - 1];
+                        entries[j] = entries[j - 1];
                     }
-                    entries[ii] = new LeaderboardEntry { playerName = playerName, score = score };
-                    break;
+
+                    entries[i] = new LeaderboardEntry
+                    {
+                        playerName = playerName,
+                        score = score
+                    };
+                    return;
                 }
             }
         }
 
         public LeaderboardEntry[] GetLeaderboard()
         {
-            return entries.clone() as LeaderboardEntry[];
+            return entries.Clone() as LeaderboardEntry[];
         }
     }
 
@@ -80,32 +115,33 @@ public class PlayerManager : MonoBehaviour
         if (playerRenderers == null || playerRenderers.Length == 0)
             playerRenderers = GetComponentsInChildren<MeshRenderer>();
 
-        if (restartScreen != null)
-            restartScreen.SetActive(false);
+        HideAllDeathUI();
+
+        if (submitScoreButton != null)
+            submitScoreButton.onClick.AddListener(SubmitLeaderboardName);
+
+        if (continueButton != null)
+            continueButton.onClick.AddListener(ShowRestartPanel);
 
         RefreshHearts();
         SetOpacity(1f);
-        updateScoreUI();
+        UpdateScoreUI();
         Time.timeScale = 1f;
+    }
+
+    void Update()
+    {
+        if (waitingForName && !scoreSubmitted && Input.GetKeyDown(KeyCode.Return))
+        {
+            SubmitLeaderboardName();
+        }
     }
 
     public void AddScore(int amount)
     {
         currentScore += amount;
         Debug.Log("Score increased! Current Score: " + currentScore);
-        updateScoreUI();
-    }
-
-    public void ResetScore()
-    {
-        currentScore = 0;
-        Debug.Log("Score reset! Current Score: " + currentScore);
-        updateScoreUI();
-    }
-
-    void updateScoreUI()
-    {
-        scoreDisplay.text = "Score: " + currentScore.ToString();
+        UpdateScoreUI();
     }
 
     public void MinusScore(int amount)
@@ -114,6 +150,7 @@ public class PlayerManager : MonoBehaviour
         {
             currentScore -= amount;
             Debug.Log("Score decreased! Current Score: " + currentScore);
+            UpdateScoreUI();
         }
         else
         {
@@ -121,9 +158,22 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    public void ResetScore()
+    {
+        currentScore = 0;
+        Debug.Log("Score reset! Current Score: " + currentScore);
+        UpdateScoreUI();
+    }
+
     public bool HasEnoughScore(int amount)
     {
         return currentScore >= amount;
+    }
+
+    void UpdateScoreUI()
+    {
+        if (scoreDisplay != null)
+            scoreDisplay.text = "Score: " + currentScore;
     }
 
     public void TakeDamage(int amount)
@@ -178,17 +228,126 @@ public class PlayerManager : MonoBehaviour
 
     void PlayerDied()
     {
-        //TODO Ask for player name and add to leaderboard
-        leaderboard.AddEntry("Player", currentScore);
-
         Debug.Log("Player has died");
 
         SetOpacity(1f);
 
-        if (restartScreen != null)
-            restartScreen.SetActive(true);
+        GetComponent<SpellTypingSystem>().enabled = false;
+        Destroy(inputfeild);
+
+        waitingForName = true;
+        scoreSubmitted = false;
+
+        lastSubmittedScore = currentScore;
+        lastSubmittedName = "";
+
+        HideAllDeathUI();
+
+        if (nameEntryPanel != null)
+            nameEntryPanel.SetActive(true);
+
+        if (nameInputField != null)
+        {
+            nameInputField.text = "";
+            nameInputField.ActivateInputField();
+            nameInputField.Select();
+        }
 
         Time.timeScale = 0f;
+    }
+
+    public void SubmitLeaderboardName()
+    {
+        if (!waitingForName || scoreSubmitted)
+            return;
+
+        string playerName = "";
+
+        if (nameInputField != null)
+        {
+            playerName = nameInputField.text.Trim().ToUpper();
+        }
+
+        if (playerName.Length < 3)
+        {
+            Debug.Log("Name must be at least 3 characters!");
+            return;
+        }
+
+        if (playerName.Length > 3)
+        {
+            playerName = playerName.Substring(0, 3);
+        }
+
+        leaderboard.AddEntry(playerName, currentScore);
+
+        lastSubmittedName = playerName;
+        scoreSubmitted = true;
+        waitingForName = false;
+
+        UpdateLeaderboardUI();
+
+        HideAllDeathUI();
+
+        if (leaderboardPanel != null)
+            leaderboardPanel.SetActive(true);
+
+        Debug.Log("Submitted score for: " + playerName);
+    }
+
+    void UpdateLeaderboardUI()
+    {
+        if (leaderboardDisplay == null)
+            return;
+
+        Leaderboard.LeaderboardEntry[] entries = leaderboard.GetLeaderboard();
+
+        string text = "=== Leaderboard ===\n\n";
+
+        for (int i = 0; i < entries.Length; i++)
+        {
+            if (entries[i] == null)
+                continue;
+
+            if (entries[i].score <= 0)
+                continue;
+
+            bool isCurrentRun =
+                entries[i].playerName == lastSubmittedName &&
+                entries[i].score == lastSubmittedScore;
+
+            if (isCurrentRun)
+                text += "<color=orange>";
+
+            text += (i + 1) + ". " + entries[i].playerName + " - " + entries[i].score;
+
+            if (isCurrentRun)
+                text += " Current Run</color>";
+
+            text += "\n";
+        }
+
+        leaderboardDisplay.text = text;
+    }
+
+    public void ShowRestartPanel()
+    {
+        HideAllDeathUI();
+
+        if (restartPanel != null)
+            restartPanel.SetActive(true);
+    }
+
+    void HideAllDeathUI()
+    {
+        if (nameEntryPanel != null)
+            nameEntryPanel.SetActive(false);
+
+        if (leaderboardPanel != null)
+            leaderboardPanel.SetActive(false);
+
+        if (restartPanel != null)
+            restartPanel.SetActive(false);
     }
 
     void RefreshHearts()
