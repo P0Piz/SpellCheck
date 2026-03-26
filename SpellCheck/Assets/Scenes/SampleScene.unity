@@ -4628,6 +4628,13 @@ MonoBehaviour:
   continueButton: {fileID: 334536488}
   playerRenderers:
   - {fileID: 0}
+  cameraTransform: {fileID: 963194228}
+  shakeDuration: 0.15
+  shakeMagnitude: 0.15
+  audioSource: {fileID: 452408724}
+  hitSound: {fileID: 8300000, guid: 2edb91c305f0b364fb0182f8e95bd049, type: 3}
+  hitPitchRange: {x: 0.9, y: 1.1}
+  hitVolume: 0.1
 --- !u!65 &1024456095
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6265,7 +6272,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Name can olny be 3 characters
+  m_text: Name can only be 3 characters
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

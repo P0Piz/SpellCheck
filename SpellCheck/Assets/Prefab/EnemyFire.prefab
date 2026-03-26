@@ -295,6 +295,9 @@ MonoBehaviour:
   untypedColor: '#FFFFFF'
   correctColor: '#00FF00'
   incorrectColor: '#FF8800'
+  currentLetterScale: 1.35
+  shakeDuration: 0.12
+  shakeAmount: 0.08
 --- !u!1 &5833726695288218834
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,6 +354,12 @@ MonoBehaviour:
   scoreDrop: 100
   spellPrompt: {fileID: 2032629115736131302}
   spellDatabase: {fileID: 11400000, guid: d1f229036f41b2643a6fbb8b2feeb722, type: 2}
+  deathSpawnPrefab: {fileID: 1620636520166436, guid: 07757cf211bd45044a1f1917658b9e66, type: 3}
+  deathObjectLifetime: 3
+  audioSource: {fileID: 0}
+  impactSound: {fileID: 8300000, guid: 90efa506d68d21d45b50dee8bdcde653, type: 3}
+  impactPitchRange: {x: 0.5, y: 1}
+  impactVolume: 0.1
 --- !u!54 &-5462082213016606536
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -43,6 +43,20 @@ public class PlayerManager : MonoBehaviour
     [Header("Player Visuals")]
     public MeshRenderer[] playerRenderers;
 
+    [Header("Screen Shake")]
+    public Transform cameraTransform;
+    public float shakeDuration = 0.15f;
+    public float shakeMagnitude = 0.15f;
+
+    [Header("Hit Feedback")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip hitSound;
+    [SerializeField] private Vector2 hitPitchRange = new Vector2(0.9f, 1.1f);
+    [SerializeField] private float hitVolume = 1f;
+
+    private Vector3 cameraOriginalLocalPos;
+    private Coroutine shakeRoutine;
+
     private bool waitingForName = false;
     private bool scoreSubmitted = false;
 
@@ -123,6 +137,9 @@ public class PlayerManager : MonoBehaviour
         if (continueButton != null)
             continueButton.onClick.AddListener(ShowRestartPanel);
 
+        if (cameraTransform != null)
+            cameraOriginalLocalPos = cameraTransform.localPosition;
+
         RefreshHearts();
         SetOpacity(1f);
         UpdateScoreUI();
@@ -190,6 +207,9 @@ public class PlayerManager : MonoBehaviour
 
         RefreshHearts();
 
+        TriggerScreenShake();
+        PlayHitSound();
+
         if (currentLives <= 0)
         {
             PlayerDied();
@@ -197,6 +217,46 @@ public class PlayerManager : MonoBehaviour
         }
 
         StartCoroutine(InvincibilityFrames());
+    }
+
+    void TriggerScreenShake()
+    {
+        if (cameraTransform == null)
+            return;
+
+        if (shakeRoutine != null)
+            StopCoroutine(shakeRoutine);
+
+        cameraTransform.localPosition = cameraOriginalLocalPos;
+        shakeRoutine = StartCoroutine(ScreenShake());
+    }
+
+    void PlayHitSound()
+    {
+        if (audioSource == null || hitSound == null)
+            return;
+
+        audioSource.pitch = Random.Range(hitPitchRange.x, hitPitchRange.y);
+        audioSource.PlayOneShot(hitSound, hitVolume);
+    }
+
+    IEnumerator ScreenShake()
+    {
+        float timer = 0f;
+
+        while (timer < shakeDuration)
+        {
+            Vector3 randomOffset = Random.insideUnitSphere * shakeMagnitude;
+            randomOffset.z = 0f; // stops weird forward/back movement if you do not want it
+
+            cameraTransform.localPosition = cameraOriginalLocalPos + randomOffset;
+
+            timer += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        cameraTransform.localPosition = cameraOriginalLocalPos;
+        shakeRoutine = null;
     }
 
     public void Heal(int amount)

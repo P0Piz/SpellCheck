@@ -21,6 +21,16 @@ public class EnemyBase : MonoBehaviour
     public EnemySpellPrompt spellPrompt;
     public SpellDatabaseSO spellDatabase;
 
+    [Header("Death Effect")]
+    public GameObject deathSpawnPrefab;
+    public float deathObjectLifetime = 3f;
+
+    [Header("Impact Sound")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip impactSound;
+    [SerializeField] private Vector2 impactPitchRange = new Vector2(0.95f, 1.05f);
+    [SerializeField] private float impactVolume = 1f;
+
     protected Transform player;
     protected WaveSpawnerJson spawner;
 
@@ -30,8 +40,21 @@ public class EnemyBase : MonoBehaviour
     void Awake()
     {
         GameObject manager = GameObject.FindGameObjectWithTag("Manager");
-        if (manager != null)
-            spawner = manager.GetComponent<WaveSpawnerJson>();
+
+        if (manager == null)
+        {
+            Debug.LogError("No object with tag 'Manager' found in scene!");
+            return;
+        }
+
+        audioSource = manager.GetComponent<AudioSource>();
+
+        spawner = manager.GetComponent<WaveSpawnerJson>();
+
+        if (spawner == null)
+        {
+            Debug.LogError("Manager object does not have WaveSpawnerJson!");
+        }
 
         if (spellPrompt == null)
             spellPrompt = GetComponentInChildren<EnemySpellPrompt>(true);
@@ -74,8 +97,24 @@ public class EnemyBase : MonoBehaviour
 
             playerManager.AddScore(scoreDrop);
 
+            SpawnDeathObject();
+
             Destroy(gameObject);
         }
+    }
+
+    void SpawnDeathObject()
+    {
+        if (deathSpawnPrefab == null)
+            return;
+
+        GameObject obj = Instantiate(
+            deathSpawnPrefab,
+            transform.position,
+            Quaternion.identity
+        );
+
+        Destroy(obj, deathObjectLifetime);
     }
 
     public void SetActiveTarget(bool active)
@@ -212,9 +251,14 @@ public class EnemyBase : MonoBehaviour
             HomingProjectileBase projectile = hitObject.GetComponent<HomingProjectileBase>();
 
             if (projectile != null)
+            {
+                PlayImpactSound();
                 projectile.OnHitEnemy(this);
+            }
             else
+            {
                 Destroy(hitObject);
+            }
         }
         else if (hitObject.CompareTag("Player"))
         {
@@ -228,6 +272,15 @@ public class EnemyBase : MonoBehaviour
 
             Destroy(gameObject);
         }
+    }
+
+    void PlayImpactSound()
+    {
+        if (audioSource == null || impactSound == null)
+            return;
+
+        audioSource.pitch = Random.Range(impactPitchRange.x, impactPitchRange.y);
+        audioSource.PlayOneShot(impactSound, impactVolume);
     }
 
     public void PlayPromptShake()
