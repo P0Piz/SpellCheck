@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b83af972a6d9de4f8fe2b8a4dbd7de7, type: 3}
-  m_Name: RipeTide
+  m_Name: RipTide
   m_EditorClassIdentifier: Assembly-CSharp::SpellDefinition
-  spellName: RipeTide
+  spellName: RipTide
   description: 
   element: 2
   spawnPrefab: {fileID: 8581482236034475633, guid: 7515498b63b03dd449f8b6a0644e893b, type: 3}
