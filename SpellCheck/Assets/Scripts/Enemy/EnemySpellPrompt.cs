@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class EnemySpellPrompt : MonoBehaviour
 {
@@ -17,12 +18,22 @@ public class EnemySpellPrompt : MonoBehaviour
     [SerializeField] private string correctColor = "#00FF00";
     [SerializeField] private string incorrectColor = "#FF8800";
 
+    [Header("Current Letter Highlight")]
+    [SerializeField] private float currentLetterScale = 1.35f;
+
+    [Header("Shake")]
+    [SerializeField] private float shakeDuration = 0.12f;
+    [SerializeField] private float shakeAmount = 0.08f;
+
     private Camera cam;
     private string currentTargetWord = "";
+    private Coroutine shakeRoutine;
+    private Vector3 baseOffset;
 
     void Awake()
     {
         cam = Camera.main;
+        baseOffset = worldOffset;
 
         if (promptText != null)
         {
@@ -83,22 +94,31 @@ public class EnemySpellPrompt : MonoBehaviour
         typed = typed == null ? "" : typed.ToLower();
 
         string result = "";
+        int currentIndex = Mathf.Clamp(typed.Length, 0, currentTargetWord.Length - 1);
 
         for (int i = 0; i < currentTargetWord.Length; i++)
         {
             char targetChar = currentTargetWord[i];
+            string charString = targetChar.ToString();
 
             if (i >= typed.Length)
             {
-                result += $"<color={untypedColor}>{targetChar}</color>";
+                if (i == currentIndex)
+                {
+                    result += $"<size={Mathf.RoundToInt(promptText.fontSize * currentLetterScale)}><color={untypedColor}>{charString}</color></size>";
+                }
+                else
+                {
+                    result += $"<color={untypedColor}>{charString}</color>";
+                }
             }
             else if (typed[i] == targetChar)
             {
-                result += $"<color={correctColor}>{targetChar}</color>";
+                result += $"<color={correctColor}>{charString}</color>";
             }
             else
             {
-                result += $"<color={incorrectColor}>{targetChar}</color>";
+                result += $"<color={incorrectColor}>{charString}</color>";
             }
         }
 
@@ -114,11 +134,48 @@ public class EnemySpellPrompt : MonoBehaviour
     public void HideSpell()
     {
         currentTargetWord = "";
+        worldOffset = baseOffset;
+
+        if (shakeRoutine != null)
+        {
+            StopCoroutine(shakeRoutine);
+            shakeRoutine = null;
+        }
 
         if (promptText == null)
             return;
 
         promptText.text = "";
         promptText.gameObject.SetActive(false);
+    }
+
+    public void PlayWrongShake()
+    {
+        if (shakeRoutine != null)
+            StopCoroutine(shakeRoutine);
+
+        shakeRoutine = StartCoroutine(WrongShakeRoutine());
+    }
+
+    private IEnumerator WrongShakeRoutine()
+    {
+        float timer = 0f;
+
+        while (timer < shakeDuration)
+        {
+            timer += Time.deltaTime;
+
+            Vector3 randomOffset = new Vector3(
+                Random.Range(-shakeAmount, shakeAmount),
+                Random.Range(-shakeAmount, shakeAmount),
+                0f
+            );
+
+            worldOffset = baseOffset + randomOffset;
+            yield return null;
+        }
+
+        worldOffset = baseOffset;
+        shakeRoutine = null;
     }
 }

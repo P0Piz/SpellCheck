@@ -169,6 +169,9 @@ public class SpellTypingSystem : MonoBehaviour
             TriggerFailAnimation();
             PlayWrongSound();
 
+            if (activeEnemy != null)
+                activeEnemy.PlayPromptShake();
+
             if (wrongInputRoutine != null)
                 StopCoroutine(wrongInputRoutine);
 

@@ -229,4 +229,10 @@ public class EnemyBase : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    public void PlayPromptShake()
+    {
+        if (spellPrompt != null)
+            spellPrompt.PlayWrongShake();
+    }
 }
