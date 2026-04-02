@@ -22,6 +22,9 @@ public class PlayerManager : MonoBehaviour
     public int currentScore = 0;
     public TMP_Text scoreDisplay;
 
+    [Header("Upgrades")]
+    public List<Upgrade> currentUpgrades = new List<Upgrade>();
+
     [Header("Heart UI")]
     public Image[] hearts;
     public Sprite fullHeart;
@@ -119,6 +122,54 @@ public class PlayerManager : MonoBehaviour
         public LeaderboardEntry[] GetLeaderboard()
         {
             return entries.Clone() as LeaderboardEntry[];
+        }
+    }
+
+    public static class UpgradeShop
+    {
+        private Upgrade[] upgrades = [new Upgrade("Last Chance", "Survive a killing blow with 1 HP (once per wave)"),
+            new Upgrade("Echo Heal", "Every 5 spells heals 1 HP"),
+            new Upgrade("Health potion", "1 extra temporary heart"),
+            new Upgrade("Chain", "Every 3rd attack jumps to another enemy"),
+            new Upgrade("Split", "Spells take out the entire row of enemies"),
+            new Upgrade("Pierce", "Spells go through enemies and travel in a straight line after impact"),
+            new Upgrade("Flow State", "Consecutive correct spelling increases the projectile speed (errors reset the speed)"),
+            new Upgrade("Snail Pace", "Enemies become slower"),
+            new Upgrade("You shall not pass", "Completely stun the wave every 10 spells cast"),
+            new Upgrade("Glass Cannon", "Increase Projectile speed greatly and have shorter spells, but mistakes lose 1 hp")];
+
+        public class Upgrade
+        {
+            public string id;
+            public string desc;
+
+            public Upgrade(string id, string desc)
+            {
+                this.id = id;
+                this.desc = desc;
+            }
+        }
+
+        public Upgrade[] Generate3RandomUpgrades(Upgrade[] exclude)
+        {
+            List<Upgrade> availableUpgrades = new List<Upgrade>(upgrades);
+            foreach (Upgrade upgrade in exclude)
+            {
+                if (availableUpgrades.Any(u => u.id == upgrade.id))
+                {
+                    availableUpgrades.RemoveAll(u => u.id == upgrade.id);
+                }
+            }
+
+            Upgrade[] selectedUpgrades = new Upgrade[3];
+            for (int i = 0; i < 3; i++)
+            {
+                int randomIndex = UnityEngine.Random.Range(0, availableUpgrades.Count);
+                selectedUpgrades[i] = availableUpgrades[randomIndex];
+                availableUpgrades.RemoveAt(randomIndex);
+            }
+
+            return selectedUpgrades;
         }
     }
 
