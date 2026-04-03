@@ -6,12 +6,15 @@ using TMPro;
 
 public class PlayerManager : MonoBehaviour
 {
-    [Header("DeleteOnDeath")]
+    [Header("Delete On Death")]
     public GameObject inputfeild;
 
     [Header("Health")]
     public int maxLives = 4;
     public int currentLives;
+
+    [Header("Temporary Hearts")]
+    public int temporaryLives = 0;
 
     [Header("Invincibility")]
     public float invincibleDuration = 1f;
@@ -22,13 +25,14 @@ public class PlayerManager : MonoBehaviour
     public int currentScore = 0;
     public TMP_Text scoreDisplay;
 
-    [Header("Upgrades")]
-    public List<Upgrade> currentUpgrades = new List<Upgrade>();
+    [Header("Augments")]
+    public PlayerAugmentManager augmentManager;
 
     [Header("Heart UI")]
     public Image[] hearts;
     public Sprite fullHeart;
     public Sprite emptyHeart;
+    public Sprite tempHeart;
 
     [Header("Death Flow UI")]
     public GameObject nameEntryPanel;
@@ -72,6 +76,9 @@ public class PlayerManager : MonoBehaviour
     {
         if (leaderboard == null)
             leaderboard = new Leaderboard();
+
+        if (augmentManager == null)
+            augmentManager = FindObjectOfType<PlayerAugmentManager>();
     }
 
     [System.Serializable]
@@ -125,54 +132,6 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    public static class UpgradeShop
-    {
-        private Upgrade[] upgrades = [new Upgrade("Last Chance", "Survive a killing blow with 1 HP (once per wave)"),
-            new Upgrade("Echo Heal", "Every 5 spells heals 1 HP"),
-            new Upgrade("Health potion", "1 extra temporary heart"),
-            new Upgrade("Chain", "Every 3rd attack jumps to another enemy"),
-            new Upgrade("Split", "Spells take out the entire row of enemies"),
-            new Upgrade("Pierce", "Spells go through enemies and travel in a straight line after impact"),
-            new Upgrade("Flow State", "Consecutive correct spelling increases the projectile speed (errors reset the speed)"),
-            new Upgrade("Snail Pace", "Enemies become slower"),
-            new Upgrade("You shall not pass", "Completely stun the wave every 10 spells cast"),
-            new Upgrade("Glass Cannon", "Increase Projectile speed greatly and have shorter spells, but mistakes lose 1 hp")];
-
-        public class Upgrade
-        {
-            public string id;
-            public string desc;
-
-            public Upgrade(string id, string desc)
-            {
-                this.id = id;
-                this.desc = desc;
-            }
-        }
-
-        public Upgrade[] Generate3RandomUpgrades(Upgrade[] exclude)
-        {
-            List<Upgrade> availableUpgrades = new List<Upgrade>(upgrades);
-            foreach (Upgrade upgrade in exclude)
-            {
-                if (availableUpgrades.Any(u => u.id == upgrade.id))
-                {
-                    availableUpgrades.RemoveAll(u => u.id == upgrade.id);
-                }
-            }
-
-            Upgrade[] selectedUpgrades = new Upgrade[3];
-            for (int i = 0; i < 3; i++)
-            {
-                int randomIndex = UnityEngine.Random.Range(0, availableUpgrades.Count);
-                selectedUpgrades[i] = availableUpgrades[randomIndex];
-                availableUpgrades.RemoveAt(randomIndex);
-            }
-
-            return selectedUpgrades;
-        }
-    }
-
     void Start()
     {
         currentLives = maxLives;
@@ -208,32 +167,25 @@ public class PlayerManager : MonoBehaviour
     public void AddScore(int amount)
     {
         currentScore += amount;
-        Debug.Log("Score increased! Current Score: " + currentScore);
         UpdateScoreUI();
     }
 
     public void MinusScore(int amount)
     {
-        if (HasEnoughScore(amount))
+        if (currentScore >= amount)
         {
             currentScore -= amount;
-            Debug.Log("Score decreased! Current Score: " + currentScore);
             UpdateScoreUI();
-        }
-        else
-        {
-            Debug.Log("Not enough score to decrease! Current Score: " + currentScore);
         }
     }
 
     public void ResetScore()
     {
         currentScore = 0;
-        Debug.Log("Score reset! Current Score: " + currentScore);
         UpdateScoreUI();
     }
 
-    public bool HasEnoughScore(int amount)
+    public bool CanAfford(int amount)
     {
         return currentScore >= amount;
     }
@@ -244,20 +196,51 @@ public class PlayerManager : MonoBehaviour
             scoreDisplay.text = "Score: " + currentScore;
     }
 
+    public void AddTemporaryHeart(int amount)
+    {
+        temporaryLives += amount;
+        if (temporaryLives < 0)
+            temporaryLives = 0;
+
+        RefreshHearts();
+    }
+
     public void TakeDamage(int amount)
     {
         if (invincible)
             return;
 
-        currentLives -= amount;
+        for (int i = 0; i < amount; i++)
+        {
+            // temp hearts get eaten first
+            if (temporaryLives > 0)
+            {
+                temporaryLives--;
+                continue;
+            }
+
+            // check lethal hit before applying it
+            bool wouldDie = currentLives - 1 <= 0;
+
+            if (wouldDie && augmentManager != null && augmentManager.CanUseLastChance())
+            {
+                currentLives = 1;
+                augmentManager.ConsumeLastChance();
+
+                RefreshHearts();
+                TriggerScreenShake();
+                PlayHitSound();
+                StartCoroutine(InvincibilityFrames());
+                return;
+            }
+
+            currentLives--;
+        }
 
         if (currentLives < 0)
             currentLives = 0;
 
-        Debug.Log("Player hit! Lives remaining: " + currentLives);
-
         RefreshHearts();
-
         TriggerScreenShake();
         PlayHitSound();
 
@@ -298,7 +281,7 @@ public class PlayerManager : MonoBehaviour
         while (timer < shakeDuration)
         {
             Vector3 randomOffset = Random.insideUnitSphere * shakeMagnitude;
-            randomOffset.z = 0f; // stops weird forward/back movement if you do not want it
+            randomOffset.z = 0f;
 
             cameraTransform.localPosition = cameraOriginalLocalPos + randomOffset;
 
@@ -317,8 +300,6 @@ public class PlayerManager : MonoBehaviour
         if (currentLives > maxLives)
             currentLives = maxLives;
 
-        Debug.Log("Player healed! Lives: " + currentLives);
-
         RefreshHearts();
     }
 
@@ -327,24 +308,22 @@ public class PlayerManager : MonoBehaviour
         invincible = true;
         SetOpacity(invincibleAlpha);
 
-        Debug.Log("Player is temporarily invincible");
-
         yield return new WaitForSeconds(invincibleDuration);
 
         invincible = false;
         SetOpacity(1f);
-
-        Debug.Log("Player can take damage again");
     }
 
     void PlayerDied()
     {
-        Debug.Log("Player has died");
-
         SetOpacity(1f);
 
-        GetComponent<SpellTypingSystem>().enabled = false;
-        Destroy(inputfeild);
+        SpellTypingSystem typingSystem = GetComponent<SpellTypingSystem>();
+        if (typingSystem != null)
+            typingSystem.enabled = false;
+
+        if (inputfeild != null)
+            Destroy(inputfeild);
 
         waitingForName = true;
         scoreSubmitted = false;
@@ -375,20 +354,13 @@ public class PlayerManager : MonoBehaviour
         string playerName = "";
 
         if (nameInputField != null)
-        {
             playerName = nameInputField.text.Trim().ToUpper();
-        }
 
         if (playerName.Length < 3)
-        {
-            Debug.Log("Name must be at least 3 characters!");
             return;
-        }
 
         if (playerName.Length > 3)
-        {
             playerName = playerName.Substring(0, 3);
-        }
 
         leaderboard.AddEntry(playerName, currentScore);
 
@@ -402,8 +374,6 @@ public class PlayerManager : MonoBehaviour
 
         if (leaderboardPanel != null)
             leaderboardPanel.SetActive(true);
-
-        Debug.Log("Submitted score for: " + playerName);
     }
 
     void UpdateLeaderboardUI()
@@ -466,12 +436,25 @@ public class PlayerManager : MonoBehaviour
         if (hearts == null || hearts.Length == 0)
             return;
 
+        int totalDisplayedLives = currentLives + temporaryLives;
+
         for (int i = 0; i < hearts.Length; i++)
         {
             if (hearts[i] == null)
                 continue;
 
-            hearts[i].sprite = i < currentLives ? fullHeart : emptyHeart;
+            if (i < currentLives)
+            {
+                hearts[i].sprite = fullHeart;
+            }
+            else if (i < totalDisplayedLives)
+            {
+                hearts[i].sprite = tempHeart != null ? tempHeart : fullHeart;
+            }
+            else
+            {
+                hearts[i].sprite = emptyHeart;
+            }
         }
     }
 

@@ -38,6 +38,11 @@ public class WaveSpawnerJson : MonoBehaviour
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private bool updateClosestTargetEveryFrame = true;
 
+    [Header("Augment Shop")]
+    public bool openShopBetweenWaves = true;
+    public AugmentShopManager augmentShop;
+    public PlayerAugmentManager augmentManager;
+
     public int CurrentWaveIndex => currentIndex;
     public bool IsWaveRunning => isWaveRunning;
 
@@ -110,6 +115,9 @@ public class WaveSpawnerJson : MonoBehaviour
         if (isWaveRunning)
             return;
 
+        if (augmentShop != null && augmentShop.IsShopOpen)
+            return;
+
         if (waveFiles == null || waveFiles.Length == 0)
         {
             SetStatus("No waves set");
@@ -131,6 +139,9 @@ public class WaveSpawnerJson : MonoBehaviour
                 return;
             }
         }
+
+        if (augmentManager != null)
+            augmentManager.OnWaveStarted();
 
         HideEndScreen();
         StartCoroutine(RunWaveRoutine(waveFiles[currentIndex]));
@@ -210,9 +221,22 @@ public class WaveSpawnerJson : MonoBehaviour
         }
         else
         {
-            SetStatus("Ready for next wave");
-            SetButtonInteractable(true);
+            if (openShopBetweenWaves && augmentShop != null)
+            {
+                SetStatus("Choose an augment");
+                augmentShop.OpenShop();
+            }
+            else
+            {
+                ShowReadyForNextWave();
+            }
         }
+    }
+
+    public void ShowReadyForNextWave()
+    {
+        SetStatus("Ready for next wave");
+        SetButtonInteractable(true);
     }
 
     IEnumerator SpawnGroupWithDelay(WaveGroupJson g)
@@ -310,7 +334,12 @@ public class WaveSpawnerJson : MonoBehaviour
 
         EnemyBase enemy = go.GetComponent<EnemyBase>();
         if (enemy != null)
+        {
             enemy.spellDatabase = spellDatabase;
+
+            if (augmentManager != null)
+                enemy.moveSpeed *= augmentManager.enemySpeedMultiplier;
+        }
     }
 
     public void NotifyEnemyDied(GameObject enemyObject)
@@ -346,6 +375,19 @@ public class WaveSpawnerJson : MonoBehaviour
             activeEnemy = null;
 
         RefreshClosestActiveEnemy();
+    }
+
+    public void StunAllLivingEnemies(float duration)
+    {
+        foreach (GameObject go in living)
+        {
+            if (go == null)
+                continue;
+
+            EnemyBase enemy = go.GetComponent<EnemyBase>();
+            if (enemy != null)
+                enemy.ApplyStun(duration);
+        }
     }
 
     void RefreshClosestActiveEnemy()

@@ -2740,6 +2740,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0a67c8ed4f7ecd442944f5b608d10d4b, type: 2}
   - {fileID: 11400000, guid: 912159bb697f3a74bb57458b75aca482, type: 2}
   - {fileID: 11400000, guid: fb27b2e8ca456214e97fedf11f65df53, type: 2}
+  - {fileID: 11400000, guid: 299aff11c75481047be210bb9f7e75e4, type: 2}
   - {fileID: 11400000, guid: 71f6c1aad0d216e468eb2bd979c46adf, type: 2}
   currentOffers: []
   shopPanel: {fileID: 475839651}
@@ -5968,7 +5969,7 @@ MonoBehaviour:
   - {fileID: 587395579}
   fullHeart: {fileID: 21300000, guid: 27eaf152e60a83c4a998ccb5ef143abb, type: 3}
   emptyHeart: {fileID: 21300000, guid: 0dbe297bedb92de498d68560cb22def5, type: 3}
-  tempHeart: {fileID: 21300000, guid: a969ab6c6a3325a4c986ef8df7354fdb, type: 3}
+  tempHeart: {fileID: 21300000, guid: 91d714014d95b0e41a331f6bb3496184, type: 3}
   nameEntryPanel: {fileID: 981294919}
   leaderboardPanel: {fileID: 1969153211}
   restartPanel: {fileID: 1283540021}

@@ -357,6 +357,8 @@ MonoBehaviour:
   impactSound: {fileID: 8300000, guid: 90efa506d68d21d45b50dee8bdcde653, type: 3}
   impactPitchRange: {x: 0.5, y: 1}
   impactVolume: 0.1
+  isStunned: 0
+  stunTimer: 0
 --- !u!54 &2869983055736231009
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -382,7 +384,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!65 &7427544018005500489
 BoxCollider:

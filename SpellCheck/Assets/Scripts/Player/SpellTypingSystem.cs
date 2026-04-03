@@ -13,6 +13,10 @@ public class SpellTypingSystem : MonoBehaviour
     [Header("Wave / Targeting")]
     public WaveSpawnerJson waveSpawner;
 
+    [Header("Augments")]
+    public PlayerAugmentManager augmentManager;
+    public PlayerManager playerManager;
+
     [Header("Timing")]
     [SerializeField] private float wrongClearDelay = 0.15f;
 
@@ -50,6 +54,12 @@ public class SpellTypingSystem : MonoBehaviour
 
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
+
+        if (augmentManager == null)
+            augmentManager = FindObjectOfType<PlayerAugmentManager>();
+
+        if (playerManager == null)
+            playerManager = FindObjectOfType<PlayerManager>();
     }
 
     void Start()
@@ -169,6 +179,9 @@ public class SpellTypingSystem : MonoBehaviour
             TriggerFailAnimation();
             PlayWrongSound();
 
+            if (augmentManager != null)
+                augmentManager.OnSpellMistake();
+
             if (activeEnemy != null)
                 activeEnemy.PlayPromptShake();
 
@@ -181,14 +194,12 @@ public class SpellTypingSystem : MonoBehaviour
 
         PlayTypingSoundIfNewCharacter(rawText);
 
-        // If partially correct, start / keep windup animation going
         if (typed.Length < targetWord.Length)
         {
             SetWindup(true);
             return;
         }
 
-        // If exact match, cast
         if (typed == targetWord)
         {
             SetWindup(false);
@@ -225,12 +236,11 @@ public class SpellTypingSystem : MonoBehaviour
         if (activeEnemy != null)
             activeEnemy.ClearTypedPreview();
 
-        if (assignedSpell.healAmount > 0)
-        {
-            PlayerManager playerManager = FindObjectOfType<PlayerManager>();
-            if (playerManager != null)
-                playerManager.Heal(assignedSpell.healAmount);
-        }
+        if (augmentManager != null)
+            augmentManager.OnSuccessfulSpellCast();
+
+        if (assignedSpell.healAmount > 0 && playerManager != null)
+            playerManager.Heal(assignedSpell.healAmount);
 
         if (assignedSpell.spawnPrefab != null && spawnPoint != null)
         {
@@ -244,6 +254,7 @@ public class SpellTypingSystem : MonoBehaviour
             if (projectile != null)
             {
                 projectile.SetForcedTarget(activeEnemy);
+                ApplyAugmentsToProjectile(projectile);
             }
         }
 
@@ -252,6 +263,18 @@ public class SpellTypingSystem : MonoBehaviour
 
         ClearAndRefocus();
         isCasting = false;
+    }
+
+    void ApplyAugmentsToProjectile(HomingProjectileBase projectile)
+    {
+        if (projectile == null || augmentManager == null)
+            return;
+
+        projectile.moveSpeed += augmentManager.GetProjectileSpeedBonus();
+
+        projectile.enableChain = augmentManager.ShouldChainThisShot();
+        projectile.enablePierce = augmentManager.ShouldPierceThisShot();
+        projectile.enableSplit = augmentManager.ShouldSplitThisShot();
     }
 
     void ClearAndRefocus(EnemyBase activeEnemy = null)

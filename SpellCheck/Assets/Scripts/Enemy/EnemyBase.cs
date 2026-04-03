@@ -37,6 +37,10 @@ public class EnemyBase : MonoBehaviour
     private SpellDefinition assignedSpell;
     private bool isActiveTarget;
 
+    [Header("Stun")]
+    [SerializeField] private bool isStunned = false;
+    [SerializeField] private float stunTimer = 0f;
+
     void Awake()
     {
         GameObject manager = GameObject.FindGameObjectWithTag("Manager");
@@ -48,13 +52,10 @@ public class EnemyBase : MonoBehaviour
         }
 
         audioSource = manager.GetComponent<AudioSource>();
-
         spawner = manager.GetComponent<WaveSpawnerJson>();
 
         if (spawner == null)
-        {
             Debug.LogError("Manager object does not have WaveSpawnerJson!");
-        }
 
         if (spellPrompt == null)
             spellPrompt = GetComponentInChildren<EnemySpellPrompt>(true);
@@ -70,7 +71,35 @@ public class EnemyBase : MonoBehaviour
 
     void Update()
     {
+        UpdateStun();
+
+        if (isStunned)
+            return;
+
         MoveForward();
+    }
+
+    void UpdateStun()
+    {
+        if (!isStunned)
+            return;
+
+        stunTimer -= Time.deltaTime;
+
+        if (stunTimer <= 0f)
+        {
+            stunTimer = 0f;
+            isStunned = false;
+        }
+    }
+
+    public void ApplyStun(float duration)
+    {
+        if (duration <= 0f)
+            return;
+
+        isStunned = true;
+        stunTimer = Mathf.Max(stunTimer, duration);
     }
 
     public void TakeDamage(HomingProjectileBase sourceProjectile)
@@ -90,12 +119,18 @@ public class EnemyBase : MonoBehaviour
             if (spawner != null)
                 spawner.NotifyEnemyDied(gameObject);
 
-            PlayerManager playerManager = player.GetComponent<PlayerManager>();
+            PlayerManager playerManager = null;
 
-            if (playerManager == null)
-                playerManager = player.GetComponentInParent<PlayerManager>();
+            if (player != null)
+            {
+                playerManager = player.GetComponent<PlayerManager>();
 
-            playerManager.AddScore(scoreDrop);
+                if (playerManager == null)
+                    playerManager = player.GetComponentInParent<PlayerManager>();
+            }
+
+            if (playerManager != null)
+                playerManager.AddScore(scoreDrop);
 
             SpawnDeathObject();
 
@@ -151,8 +186,10 @@ public class EnemyBase : MonoBehaviour
         if (assignedSpell == null)
         {
             Debug.LogWarning($"{name}: No spell found for counter element {counter}.");
+
             if (spellPrompt != null)
                 spellPrompt.HideSpell();
+
             return;
         }
 
@@ -216,7 +253,8 @@ public class EnemyBase : MonoBehaviour
         for (int i = 0; i < players.Length; i++)
         {
             GameObject candidate = players[i];
-            if (!candidate) continue;
+            if (!candidate)
+                continue;
 
             float d = (candidate.transform.position - pos).sqrMagnitude;
             if (d < bestDistSqr)
@@ -246,6 +284,9 @@ public class EnemyBase : MonoBehaviour
 
     void HandleImpact(GameObject hitObject)
     {
+        if (hitObject == null)
+            return;
+
         if (hitObject.CompareTag("Spell"))
         {
             HomingProjectileBase projectile = hitObject.GetComponent<HomingProjectileBase>();
