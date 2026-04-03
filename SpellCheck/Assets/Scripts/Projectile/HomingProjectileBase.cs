@@ -30,7 +30,7 @@ public class HomingProjectileBase : MonoBehaviour
     public bool enableSplit = false;
 
     [Tooltip("How many extra enemies a chain shot can jump to.")]
-    public int maxChainJumps = 1;
+    public int maxChainJumps = 3;
 
     [Tooltip("How many extra enemies a piercing shot can pass through.")]
     public int maxPierceHits = 1;
