@@ -2,12 +2,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 
 public class PlayerManager : MonoBehaviour
 {
     [Header("Delete On Death")]
-    public GameObject inputfeild;
+    public GameObject inputfield;
+
+    [Header("Difficulty")]
+    public Dictionary<string, float> difficultyValues = new Dictionary<string, float>
+    {
+        {"Easy", 0.3f},
+        {"Normal", 0.7f},
+        {"Hard", 1.0f}
+    };
+    public string currentDifficulty = "Normal";
 
     [Header("Health")]
     public int maxLives = 4;
@@ -91,6 +101,7 @@ public class PlayerManager : MonoBehaviour
         {
             public string playerName;
             public int score;
+            public string difficulty;
         }
 
         public Leaderboard()
@@ -105,7 +116,7 @@ public class PlayerManager : MonoBehaviour
             }
         }
 
-        public void AddEntry(string playerName, int score)
+        public void AddEntry(string playerName, int score, string difficulty)
         {
             for (int i = 0; i < entries.Length; i++)
             {
@@ -119,7 +130,8 @@ public class PlayerManager : MonoBehaviour
                     entries[i] = new LeaderboardEntry
                     {
                         playerName = playerName,
-                        score = score
+                        score = score,
+                        difficulty = difficulty
                     };
                     return;
                 }
@@ -166,7 +178,7 @@ public class PlayerManager : MonoBehaviour
 
     public void AddScore(int amount)
     {
-        currentScore += amount;
+        currentScore += (int)System.Math.Round(amount * difficultyValues[currentDifficulty]);
         UpdateScoreUI();
     }
 
@@ -322,8 +334,8 @@ public class PlayerManager : MonoBehaviour
         if (typingSystem != null)
             typingSystem.enabled = false;
 
-        if (inputfeild != null)
-            Destroy(inputfeild);
+        if (inputfield != null)
+            Destroy(inputfield);
 
         waitingForName = true;
         scoreSubmitted = false;
@@ -362,7 +374,7 @@ public class PlayerManager : MonoBehaviour
         if (playerName.Length > 3)
             playerName = playerName.Substring(0, 3);
 
-        leaderboard.AddEntry(playerName, currentScore);
+        leaderboard.AddEntry(playerName, currentScore, currentDifficulty);
 
         lastSubmittedName = playerName;
         scoreSubmitted = true;

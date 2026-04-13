@@ -269,7 +269,16 @@ public class EnemyBase : MonoBehaviour
 
     void MoveForward()
     {
-        transform.position += transform.forward * moveSpeed * Time.deltaTime;
+        PlayerManager playerManager = null;
+
+        if (player != null)
+        {
+            playerManager = player.GetComponent<PlayerManager>();
+
+            if (playerManager == null)
+                playerManager = player.GetComponentInParent<PlayerManager>();
+        }
+        transform.position += transform.forward * moveSpeed * playerManager.difficultyValues[playerManager.currentDifficulty] * Time.deltaTime;
     }
 
     void OnTriggerEnter(Collider other)
