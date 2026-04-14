@@ -2,22 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 
 public class PlayerManager : MonoBehaviour
 {
     [Header("Delete On Death")]
     public GameObject inputfield;
-
-    [Header("Difficulty")]
-    public Dictionary<string, float> difficultyValues = new Dictionary<string, float>
-    {
-        {"Easy", 0.3f},
-        {"Normal", 0.7f},
-        {"Hard", 1.0f}
-    };
-    public string currentDifficulty = "Normal";
 
     [Header("Health")]
     public int maxLives = 4;
@@ -89,6 +79,11 @@ public class PlayerManager : MonoBehaviour
 
         if (augmentManager == null)
             augmentManager = FindObjectOfType<PlayerAugmentManager>();
+
+
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     [System.Serializable]
@@ -178,7 +173,12 @@ public class PlayerManager : MonoBehaviour
 
     public void AddScore(int amount)
     {
-        currentScore += (int)System.Math.Round(amount * difficultyValues[currentDifficulty]);
+        float multiplier = 1f;
+
+        if (DifficultyManager.Instance != null)
+            multiplier = DifficultyManager.Instance.GetScoreMultiplier();
+
+        currentScore += Mathf.RoundToInt(amount * multiplier);
         UpdateScoreUI();
     }
 
@@ -374,7 +374,12 @@ public class PlayerManager : MonoBehaviour
         if (playerName.Length > 3)
             playerName = playerName.Substring(0, 3);
 
-        leaderboard.AddEntry(playerName, currentScore, currentDifficulty);
+        string difficultyName = "Normal";
+
+        if (DifficultyManager.Instance != null)
+            difficultyName = DifficultyManager.Instance.GetCurrentDifficultyName();
+
+        leaderboard.AddEntry(playerName, currentScore, difficultyName);
 
         lastSubmittedName = playerName;
         scoreSubmitted = true;
