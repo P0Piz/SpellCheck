@@ -6,12 +6,14 @@ using UnityEngine.SceneManagement;
 public class MainMenuController : MonoBehaviour
 {
     [Header("Panels")]
+    public GameObject tipPanel;
     public GameObject mainPanel;
     public GameObject difficultyPanel;
     public GameObject scoresPanel;
     public GameObject settingsPanel;
 
     [Header("Default Selected Buttons")]
+    public Button tipDefaultButton;
     public Button mainDefaultButton;
     public Button difficultyDefaultButton;
     public Button scoresDefaultButton;
@@ -26,7 +28,7 @@ public class MainMenuController : MonoBehaviour
 
     void Start()
     {
-        ShowMain();
+        ShowTip();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -48,7 +50,7 @@ public class MainMenuController : MonoBehaviour
 
     void HandleSubmitInput()
     {
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        if (Input.GetKeyDown(KeyCode.K))
         {
             GameObject selected = EventSystem.current.currentSelectedGameObject;
 
@@ -63,7 +65,7 @@ public class MainMenuController : MonoBehaviour
 
     void HandleBackInput()
     {
-        if (!Input.GetKeyDown(KeyCode.Backspace))
+        if (!Input.GetKeyDown(KeyCode.L))
             return;
 
         if (difficultyPanel.activeSelf || scoresPanel.activeSelf || settingsPanel.activeSelf)
@@ -77,7 +79,9 @@ public class MainMenuController : MonoBehaviour
         if (EventSystem.current.currentSelectedGameObject != null)
             return;
 
-        if (mainPanel.activeSelf && mainDefaultButton != null)
+        if (tipPanel.activeSelf && tipDefaultButton != null)
+            EventSystem.current.SetSelectedGameObject(tipDefaultButton.gameObject);
+        else if (mainPanel.activeSelf && mainDefaultButton != null)
             EventSystem.current.SetSelectedGameObject(mainDefaultButton.gameObject);
         else if (difficultyPanel.activeSelf && difficultyDefaultButton != null)
             EventSystem.current.SetSelectedGameObject(difficultyDefaultButton.gameObject);
@@ -131,8 +135,21 @@ public class MainMenuController : MonoBehaviour
         SceneManager.LoadScene(gameplaySceneName);
     }
 
+    public void ShowTip()
+    {
+        tipPanel.SetActive(true);
+        mainPanel.SetActive(false);
+        difficultyPanel.SetActive(false);
+        scoresPanel.SetActive(false);
+        settingsPanel.SetActive(false);
+
+        SelectButton(tipDefaultButton);
+        BlockInputTemporarily();
+    }
+
     public void ShowMain()
     {
+        tipPanel.SetActive(false);
         mainPanel.SetActive(true);
         difficultyPanel.SetActive(false);
         scoresPanel.SetActive(false);
