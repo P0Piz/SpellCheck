@@ -19,7 +19,6 @@ public class WaveSpawnerJson : MonoBehaviour
     public Transform[] spawnPoints;
 
     [Header("UI")]
-    public Button nextWaveButton;
     public TMP_Text statusText;
 
     [Header("End Screen")]
@@ -42,6 +41,10 @@ public class WaveSpawnerJson : MonoBehaviour
     public bool openShopBetweenWaves = true;
     public AugmentShopManager augmentShop;
     public PlayerAugmentManager augmentManager;
+
+    [Header("NextRound Panel")]
+    public GameObject NextWavePanel;
+    public Button nextWaveButton;
 
     public int CurrentWaveIndex => currentIndex;
     public bool IsWaveRunning => isWaveRunning;
@@ -150,14 +153,14 @@ public class WaveSpawnerJson : MonoBehaviour
     IEnumerator RunWaveRoutine(string fileName)
     {
         isWaveRunning = true;
-        SetButtonInteractable(false);
+        NextWavePanel.SetActive(false);
 
         WaveJsonData wave = LoadWave(fileName);
         if (wave == null)
         {
             SetStatus($"Missing wave: {fileName}");
             isWaveRunning = false;
-            SetButtonInteractable(true);
+            NextWavePanel.SetActive(true);
             yield break;
         }
 
@@ -216,7 +219,7 @@ public class WaveSpawnerJson : MonoBehaviour
         if (currentIndex >= waveFiles.Length && !loopWaves)
         {
             SetStatus("All waves complete");
-            SetButtonInteractable(false);
+            NextWavePanel.SetActive(false);
             ShowEndScreen("You Win!");
         }
         else
@@ -236,7 +239,7 @@ public class WaveSpawnerJson : MonoBehaviour
     public void ShowReadyForNextWave()
     {
         SetStatus("Ready for next wave");
-        SetButtonInteractable(true);
+        NextWavePanel.SetActive(true);
     }
 
     IEnumerator SpawnGroupWithDelay(WaveGroupJson g)
