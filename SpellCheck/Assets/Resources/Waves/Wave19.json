@@ -1,0 +1,38 @@
+{
+  "waveName": "Wave 19",
+  "runGroupsSequentially": true,
+  "postWaveDelay": 2.0,
+  "requireKillAllToComplete": true,
+  "groups": [
+    {
+      "enemyType": "Earth",
+      "count": [ 2, 2 ],
+      "interval": 1.5,
+      "startDelay": 3
+    },
+    {
+      "enemyType": "Fire",
+      "count": [ 2, 2 ],
+      "interval": 1.5,
+      "startDelay": 3
+    },
+    {
+      "enemyType": "Water",
+      "count": [ 2, 2 ],
+      "interval": 1.5,
+      "startDelay": 3
+    },
+    {
+      "enemyType": "Fire",
+      "count": [ 2, 2 ],
+      "interval": 1.5,
+      "startDelay": 3
+    },
+    {
+      "enemyType": "Earth",
+      "count": [ 1, 2 ],
+      "interval": 1.5,
+      "startDelay": 3
+    }
+  ]
+}

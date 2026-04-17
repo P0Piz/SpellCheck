@@ -32,8 +32,6 @@ public class AugmentShopManager : MonoBehaviour
             shopPanel.SetActive(true);
 
         shopOpen = true;
-
-        Debug.Log("Augment shop opened.");
     }
 
     public void CloseShop()
@@ -42,8 +40,6 @@ public class AugmentShopManager : MonoBehaviour
             shopPanel.SetActive(false);
 
         shopOpen = false;
-
-        Debug.Log("Augment shop closed.");
     }
 
     void RollOffers()

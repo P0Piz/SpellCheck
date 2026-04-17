@@ -80,10 +80,6 @@ public class PlayerManager : MonoBehaviour
         if (augmentManager == null)
             augmentManager = FindObjectOfType<PlayerAugmentManager>();
 
-
-
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
     }
 
     [System.Serializable]
@@ -205,7 +201,7 @@ public class PlayerManager : MonoBehaviour
     void UpdateScoreUI()
     {
         if (scoreDisplay != null)
-            scoreDisplay.text = "Score: " + currentScore;
+            scoreDisplay.text = currentScore.ToString();
     }
 
     public void AddTemporaryHeart(int amount)

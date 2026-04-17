@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5709076855383097063}
   - component: {fileID: 6447025185231871123}
   - component: {fileID: 8139017273263641097}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 2274998451532941121}
   - component: {fileID: 1517447318964517186}
   - component: {fileID: 4385561880402988816}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -120,7 +120,7 @@ RectTransform:
   m_GameObject: {fileID: 2459480582074514943}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.26638, y: 0.26638, z: 0.26638}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8945499977613830856}
@@ -307,7 +307,7 @@ GameObject:
   - component: {fileID: 756833456982736748}
   - component: {fileID: -4048841262119112882}
   - component: {fileID: 2503421939857879957}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyWater
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -323,7 +323,7 @@ Transform:
   m_GameObject: {fileID: 5833726695288218834}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -0.1374, y: 1.52, z: 26.79}
+  m_LocalPosition: {x: -0.14045, y: 1.6404, z: 26.722}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -357,6 +357,8 @@ MonoBehaviour:
   impactSound: {fileID: 8300000, guid: 90efa506d68d21d45b50dee8bdcde653, type: 3}
   impactPitchRange: {x: 0.5, y: 1}
   impactVolume: 0.1
+  isStunned: 0
+  stunTimer: 0
 --- !u!54 &-4048841262119112882
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -382,7 +384,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 118
   m_CollisionDetection: 0
 --- !u!65 &2503421939857879957
 BoxCollider:

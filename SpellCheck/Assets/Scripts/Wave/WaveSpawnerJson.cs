@@ -153,14 +153,19 @@ public class WaveSpawnerJson : MonoBehaviour
     IEnumerator RunWaveRoutine(string fileName)
     {
         isWaveRunning = true;
-        NextWavePanel.SetActive(false);
+
+        if (NextWavePanel != null)
+            NextWavePanel.SetActive(false);
 
         WaveJsonData wave = LoadWave(fileName);
         if (wave == null)
         {
             SetStatus($"Missing wave: {fileName}");
             isWaveRunning = false;
-            NextWavePanel.SetActive(true);
+
+            if (NextWavePanel != null)
+                NextWavePanel.SetActive(true);
+
             yield break;
         }
 
@@ -168,25 +173,32 @@ public class WaveSpawnerJson : MonoBehaviour
         completedTypingTargets.Clear();
         ClearActiveEnemy();
 
-        SetStatus(wave.waveName);
+        float roundStartDelay = GetRoundStartDelay(wave);
 
-        if (wave.runGroupsSequentially)
-        {
-            foreach (WaveGroupJson g in wave.groups)
-            {
-                yield return new WaitForSeconds(Mathf.Max(0f, g.startDelay));
-                yield return SpawnGroup(g);
-            }
-        }
+        if (roundStartDelay > 0f)
+            yield return StartCoroutine(ShowRoundCountdown(wave.waveName, roundStartDelay));
         else
+            SetStatus("");
+
+        SetStatus("");
+
+        if (wave.groups != null && wave.groups.Count > 0)
         {
-            List<Coroutine> routines = new List<Coroutine>();
+            if (wave.runGroupsSequentially)
+            {
+                foreach (WaveGroupJson g in wave.groups)
+                    yield return SpawnGroup(g);
+            }
+            else
+            {
+                List<Coroutine> routines = new List<Coroutine>();
 
-            foreach (WaveGroupJson g in wave.groups)
-                routines.Add(StartCoroutine(SpawnGroupWithDelay(g)));
+                foreach (WaveGroupJson g in wave.groups)
+                    routines.Add(StartCoroutine(SpawnGroup(g)));
 
-            foreach (Coroutine routine in routines)
-                yield return routine;
+                foreach (Coroutine routine in routines)
+                    yield return routine;
+            }
         }
 
         RefreshClosestActiveEnemy();
@@ -219,14 +231,16 @@ public class WaveSpawnerJson : MonoBehaviour
         if (currentIndex >= waveFiles.Length && !loopWaves)
         {
             SetStatus("All waves complete");
-            NextWavePanel.SetActive(false);
+            if (NextWavePanel != null)
+                NextWavePanel.SetActive(false);
+
             ShowEndScreen("You Win!");
         }
         else
         {
             if (openShopBetweenWaves && augmentShop != null)
             {
-                SetStatus("Choose an augment");
+                SetStatus("");
                 augmentShop.OpenShop();
             }
             else
@@ -236,16 +250,39 @@ public class WaveSpawnerJson : MonoBehaviour
         }
     }
 
-    public void ShowReadyForNextWave()
+    float GetRoundStartDelay(WaveJsonData wave)
     {
-        SetStatus("Ready for next wave");
-        NextWavePanel.SetActive(true);
+        if (wave == null || wave.groups == null || wave.groups.Count == 0)
+            return 0f;
+
+        WaveGroupJson firstGroup = wave.groups[0];
+        if (firstGroup == null)
+            return 0f;
+
+        return Mathf.Max(0f, firstGroup.startDelay);
     }
 
-    IEnumerator SpawnGroupWithDelay(WaveGroupJson g)
+    IEnumerator ShowRoundCountdown(string waveName, float delay)
     {
-        yield return new WaitForSeconds(Mathf.Max(0f, g.startDelay));
-        yield return SpawnGroup(g);
+        int secondsLeft = Mathf.CeilToInt(delay);
+
+        while (secondsLeft > 0)
+        {
+            SetStatus($"{waveName}\nStarting in {secondsLeft}...");
+            yield return new WaitForSeconds(1f);
+            secondsLeft--;
+        }
+
+        SetStatus("GO!");
+        yield return new WaitForSeconds(0.5f);
+        SetStatus("");
+    }
+
+    public void ShowReadyForNextWave()
+    {
+        SetStatus("");
+        if (NextWavePanel != null)
+            NextWavePanel.SetActive(true);
     }
 
     IEnumerator SpawnGroup(WaveGroupJson g)
@@ -260,26 +297,21 @@ public class WaveSpawnerJson : MonoBehaviour
         if (g.count == null || g.count.Length == 0)
             yield break;
 
-        if (g.count.Length == 1 && g.interval != 0f)
+        float interval = Mathf.Max(0f, g.interval);
+
+        if (g.count.Length == 1)
         {
             int count = Mathf.Max(0, g.count[0]);
-            float interval = Mathf.Max(0f, g.interval);
+            SpawnRow(prefab, count);
+            RefreshClosestActiveEnemy();
 
-            for (int i = 0; i < count; i++)
-            {
-                SpawnOne(prefab);
-                RefreshClosestActiveEnemy();
-
-                if (interval > 0f)
-                    yield return new WaitForSeconds(interval);
-                else
-                    yield return null;
-            }
+            if (interval > 0f)
+                yield return new WaitForSeconds(interval);
+            else
+                yield return null;
         }
         else
         {
-            float interval = Mathf.Max(0f, g.interval);
-
             for (int i = 0; i < g.count.Length; i++)
             {
                 int count = Mathf.Max(0, g.count[i]);

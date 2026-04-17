@@ -1,12 +1,18 @@
 {
-  "waveName": "Wave 3",
+  "waveName": "Wave 7",
   "runGroupsSequentially": true,
   "postWaveDelay": 2.0,
   "requireKillAllToComplete": true,
   "groups": [
     {
+      "enemyType": "Earth",
+      "count": [ 2, 2 ],
+      "interval": 1.5,
+      "startDelay": 3
+    },
+    {
       "enemyType": "Fire",
-      "count": [ 1, 2 ],
+      "count": [ 1 ],
       "interval": 1.5,
       "startDelay": 3
     }

@@ -2,29 +2,47 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using TMPro;
+using System.Collections;
 
 public class MainMenuController : MonoBehaviour
 {
-    [Header("Panels")]
-    public GameObject tipPanel;
-    public GameObject mainPanel;
-    public GameObject difficultyPanel;
-    public GameObject scoresPanel;
-    public GameObject settingsPanel;
+    [System.Serializable]
+    public class PanelEntry
+    {
+        public GameObject panel;
+        public Selectable defaultSelectable;
+    }
 
-    [Header("Default Selected Buttons")]
-    public Button tipDefaultButton;
-    public Button mainDefaultButton;
-    public Button difficultyDefaultButton;
-    public Button scoresDefaultButton;
-    public Button settingsDefaultButton;
+    public PanelEntry tipPanel;
+    public PanelEntry mainPanel;
+    public PanelEntry difficultyPanel;
+    public PanelEntry scoresPanel;
+    public PanelEntry settingsPanel;
 
-    [Header("Scene")]
     public string gameplaySceneName = "GameScene";
 
-    [Header("Input Lock")]
+    [SerializeField] private KeyCode submitKey = KeyCode.K;
+    [SerializeField] private KeyCode backKey = KeyCode.L;
+
     [SerializeField] private float inputBlockTime = 0.15f;
+
+    [SerializeField] private string buttonPressTrigger = "Press";
+    [SerializeField] private float buttonPressDelay = 0.15f;
+
+    [Header("UI Audio")]
+    [SerializeField] private AudioSource uiAudioSource;
+    [SerializeField] private AudioClip navigateClip;
+    [SerializeField] private AudioClip selectClip;
+    [SerializeField] private float navigateVolume = 1f;
+    [SerializeField] private float selectVolume = 1f;
+
     private float inputBlockedUntil = 0f;
+    private PanelEntry currentPanel;
+    private bool isPressingButton = false;
+
+    // keeps track of the last selected object so we only play the move sound when it actually changes
+    private GameObject lastSelectedObject;
 
     void Start()
     {
@@ -38,73 +56,184 @@ public class MainMenuController : MonoBehaviour
         if (Time.unscaledTime < inputBlockedUntil)
             return;
 
+        if (EventSystem.current == null)
+            return;
+
+        EnsureValidSelection();
+        CheckSelectionChanged();
         HandleSubmitInput();
         HandleBackInput();
-        EnsureSomethingIsSelected();
-    }
-
-    void BlockInputTemporarily()
-    {
-        inputBlockedUntil = Time.unscaledTime + inputBlockTime;
     }
 
     void HandleSubmitInput()
     {
-        if (Input.GetKeyDown(KeyCode.K))
+        if (!Input.GetKeyDown(submitKey))
+            return;
+
+        if (isPressingButton)
+            return;
+
+        GameObject selected = EventSystem.current.currentSelectedGameObject;
+        if (selected == null)
+            return;
+
+        TMP_InputField input = selected.GetComponent<TMP_InputField>();
+        if (input != null)
+            return;
+
+        Button button = selected.GetComponent<Button>();
+        if (button != null && button.IsInteractable())
+            StartCoroutine(PressButton(button));
+    }
+
+    IEnumerator PressButton(Button button)
+    {
+        isPressingButton = true;
+
+        PlaySelectSound();
+
+        Animator anim = button.GetComponent<Animator>();
+
+        if (anim != null)
         {
-            GameObject selected = EventSystem.current.currentSelectedGameObject;
-
-            if (selected == null)
-                return;
-
-            Button button = selected.GetComponent<Button>();
-            if (button != null)
-                button.onClick.Invoke();
+            anim.ResetTrigger(buttonPressTrigger);
+            anim.SetTrigger(buttonPressTrigger);
+            yield return new WaitForSecondsRealtime(buttonPressDelay);
         }
+        else
+        {
+            yield return null;
+        }
+
+        if (button != null && button.IsInteractable())
+            button.onClick.Invoke();
+
+        isPressingButton = false;
     }
 
     void HandleBackInput()
     {
-        if (!Input.GetKeyDown(KeyCode.L))
+        if (!Input.GetKeyDown(backKey))
             return;
 
-        if (difficultyPanel.activeSelf || scoresPanel.activeSelf || settingsPanel.activeSelf)
-        {
+        if (currentPanel == difficultyPanel || currentPanel == scoresPanel || currentPanel == settingsPanel)
             ShowMain();
+    }
+
+    void EnsureValidSelection()
+    {
+        if (currentPanel == null || currentPanel.panel == null)
+            return;
+
+        GameObject selected = EventSystem.current.currentSelectedGameObject;
+
+        if (selected == null)
+        {
+            Select(currentPanel.defaultSelectable, false);
+            return;
+        }
+
+        if (!selected.transform.IsChildOf(currentPanel.panel.transform))
+        {
+            Select(currentPanel.defaultSelectable, false);
+            return;
+        }
+
+        Selectable s = selected.GetComponent<Selectable>();
+        if (s != null && (!s.IsInteractable() || !s.gameObject.activeInHierarchy))
+            Select(currentPanel.defaultSelectable, false);
+    }
+
+    void CheckSelectionChanged()
+    {
+        if (EventSystem.current == null)
+            return;
+
+        GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
+
+        if (currentSelected == null)
+            return;
+
+        if (currentSelected != lastSelectedObject)
+        {
+            // don't play a move sound the very first time we get a selection
+            if (lastSelectedObject != null)
+                PlayNavigateSound();
+
+            lastSelectedObject = currentSelected;
         }
     }
 
-    void EnsureSomethingIsSelected()
+    void Select(Selectable selectable, bool playSound = false)
     {
-        if (EventSystem.current.currentSelectedGameObject != null)
+        if (selectable == null || EventSystem.current == null)
             return;
 
-        if (tipPanel.activeSelf && tipDefaultButton != null)
-            EventSystem.current.SetSelectedGameObject(tipDefaultButton.gameObject);
-        else if (mainPanel.activeSelf && mainDefaultButton != null)
-            EventSystem.current.SetSelectedGameObject(mainDefaultButton.gameObject);
-        else if (difficultyPanel.activeSelf && difficultyDefaultButton != null)
-            EventSystem.current.SetSelectedGameObject(difficultyDefaultButton.gameObject);
-        else if (scoresPanel.activeSelf && scoresDefaultButton != null)
-            EventSystem.current.SetSelectedGameObject(scoresDefaultButton.gameObject);
-        else if (settingsPanel.activeSelf && settingsDefaultButton != null)
-            EventSystem.current.SetSelectedGameObject(settingsDefaultButton.gameObject);
+        GameObject previousSelected = EventSystem.current.currentSelectedGameObject;
+
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(selectable.gameObject);
+
+        TMP_InputField input = selectable.GetComponent<TMP_InputField>();
+        if (input != null)
+        {
+            input.ActivateInputField();
+            input.MoveTextEnd(false);
+        }
+
+        if (playSound && previousSelected != selectable.gameObject)
+            PlayNavigateSound();
+
+        lastSelectedObject = selectable.gameObject;
     }
 
-    public void PlayPressed()
+    void SwitchPanel(PanelEntry panel)
     {
-        ShowDifficulty();
+        tipPanel.panel.SetActive(false);
+        mainPanel.panel.SetActive(false);
+        difficultyPanel.panel.SetActive(false);
+        scoresPanel.panel.SetActive(false);
+        settingsPanel.panel.SetActive(false);
+
+        panel.panel.SetActive(true);
+        currentPanel = panel;
+
+        StartCoroutine(SelectNextFrame(panel));
+        BlockInput();
     }
 
-    public void ScoresPressed()
+    IEnumerator SelectNextFrame(PanelEntry panel)
     {
-        ShowScores();
+        yield return null;
+        Select(panel.defaultSelectable, false);
     }
 
-    public void SettingsPressed()
+    void BlockInput()
     {
-        ShowSettings();
+        inputBlockedUntil = Time.unscaledTime + inputBlockTime;
     }
+
+    void PlayNavigateSound()
+    {
+        if (uiAudioSource != null && navigateClip != null)
+        {
+            uiAudioSource.pitch = Random.Range(0.9f, 1.1f);
+            uiAudioSource.PlayOneShot(navigateClip, navigateVolume);
+        }
+    }
+
+    void PlaySelectSound()
+    {
+        if (uiAudioSource != null && selectClip != null)
+        {
+            uiAudioSource.pitch = Random.Range(0.95f, 1.15f);
+            uiAudioSource.PlayOneShot(selectClip, selectVolume);
+        }
+    }
+
+    public void PlayPressed() => ShowDifficulty();
+    public void ScoresPressed() => ShowScores();
+    public void SettingsPressed() => ShowSettings();
 
     public void ExitPressed()
     {
@@ -112,20 +241,9 @@ public class MainMenuController : MonoBehaviour
         Debug.Log("Quit Game");
     }
 
-    public void SelectEasy()
-    {
-        SetDifficultyAndStart(GameDifficulty.Easy);
-    }
-
-    public void SelectNormal()
-    {
-        SetDifficultyAndStart(GameDifficulty.Normal);
-    }
-
-    public void SelectHard()
-    {
-        SetDifficultyAndStart(GameDifficulty.Hard);
-    }
+    public void SelectEasy() => SetDifficultyAndStart(GameDifficulty.Easy);
+    public void SelectNormal() => SetDifficultyAndStart(GameDifficulty.Normal);
+    public void SelectHard() => SetDifficultyAndStart(GameDifficulty.Hard);
 
     void SetDifficultyAndStart(GameDifficulty difficulty)
     {
@@ -135,69 +253,9 @@ public class MainMenuController : MonoBehaviour
         SceneManager.LoadScene(gameplaySceneName);
     }
 
-    public void ShowTip()
-    {
-        tipPanel.SetActive(true);
-        mainPanel.SetActive(false);
-        difficultyPanel.SetActive(false);
-        scoresPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-
-        SelectButton(tipDefaultButton);
-        BlockInputTemporarily();
-    }
-
-    public void ShowMain()
-    {
-        tipPanel.SetActive(false);
-        mainPanel.SetActive(true);
-        difficultyPanel.SetActive(false);
-        scoresPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-
-        SelectButton(mainDefaultButton);
-        BlockInputTemporarily();
-    }
-
-    public void ShowDifficulty()
-    {
-        mainPanel.SetActive(false);
-        difficultyPanel.SetActive(true);
-        scoresPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-
-        SelectButton(difficultyDefaultButton);
-        BlockInputTemporarily();
-    }
-
-    public void ShowScores()
-    {
-        mainPanel.SetActive(false);
-        difficultyPanel.SetActive(false);
-        scoresPanel.SetActive(true);
-        settingsPanel.SetActive(false);
-
-        SelectButton(scoresDefaultButton);
-        BlockInputTemporarily();
-    }
-
-    public void ShowSettings()
-    {
-        mainPanel.SetActive(false);
-        difficultyPanel.SetActive(false);
-        scoresPanel.SetActive(false);
-        settingsPanel.SetActive(true);
-
-        SelectButton(settingsDefaultButton);
-        BlockInputTemporarily();
-    }
-
-    void SelectButton(Button button)
-    {
-        if (button == null)
-            return;
-
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(button.gameObject);
-    }
+    public void ShowTip() => SwitchPanel(tipPanel);
+    public void ShowMain() => SwitchPanel(mainPanel);
+    public void ShowDifficulty() => SwitchPanel(difficultyPanel);
+    public void ShowScores() => SwitchPanel(scoresPanel);
+    public void ShowSettings() => SwitchPanel(settingsPanel);
 }

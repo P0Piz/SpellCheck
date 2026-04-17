@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1808869377371787687}
   - component: {fileID: 6982607531181778745}
   - component: {fileID: 1576604455432027110}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 3809534457912104194}
   - component: {fileID: 1133514933680576285}
   - component: {fileID: 6647654283941836502}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -120,7 +120,7 @@ RectTransform:
   m_GameObject: {fileID: 4732471092694696725}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.26637998, y: 0.26637998, z: 0.26637998}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8945499977613830856}
@@ -307,7 +307,7 @@ GameObject:
   - component: {fileID: -8644164056943525207}
   - component: {fileID: 2869983055736231009}
   - component: {fileID: 7427544018005500489}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EnemyEarth
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -384,7 +384,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 118
   m_CollisionDetection: 0
 --- !u!65 &7427544018005500489
 BoxCollider:
