@@ -220,14 +220,12 @@ public class PlayerManager : MonoBehaviour
 
         for (int i = 0; i < amount; i++)
         {
-            // temp hearts get eaten first
             if (temporaryLives > 0)
             {
                 temporaryLives--;
                 continue;
             }
 
-            // check lethal hit before applying it
             bool wouldDie = currentLives - 1 <= 0;
 
             if (wouldDie && augmentManager != null && augmentManager.CanUseLastChance())

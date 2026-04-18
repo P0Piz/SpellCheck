@@ -42,7 +42,7 @@ public class WaveSpawnerJson : MonoBehaviour
     public AugmentShopManager augmentShop;
     public PlayerAugmentManager augmentManager;
 
-    [Header("NextRound Panel")]
+    [Header("Next Round Panel")]
     public GameObject NextWavePanel;
     public Button nextWaveButton;
 
@@ -53,14 +53,17 @@ public class WaveSpawnerJson : MonoBehaviour
     private bool isWaveRunning;
 
     private readonly HashSet<GameObject> living = new HashSet<GameObject>();
-    private readonly HashSet<EnemyBase> completedTypingTargets = new HashSet<EnemyBase>();
+
+    private readonly HashSet<EnemyBase> usedEnemies = new HashSet<EnemyBase>();
 
     private EnemyBase activeEnemy;
+
     private Transform player;
 
     void Awake()
     {
         currentIndex = Mathf.Clamp(startIndex, 0, Mathf.Max(0, waveFiles.Length - 1));
+
         FindPlayer();
         SetButtonInteractable(true);
         SetStatus("Ready");
@@ -169,8 +172,8 @@ public class WaveSpawnerJson : MonoBehaviour
             yield break;
         }
 
-        CleanupCollections();
-        completedTypingTargets.Clear();
+        living.Clear();
+        usedEnemies.Clear();
         ClearActiveEnemy();
 
         float roundStartDelay = GetRoundStartDelay(wave);
@@ -186,15 +189,15 @@ public class WaveSpawnerJson : MonoBehaviour
         {
             if (wave.runGroupsSequentially)
             {
-                foreach (WaveGroupJson g in wave.groups)
-                    yield return SpawnGroup(g);
+                for (int i = 0; i < wave.groups.Count; i++)
+                    yield return StartCoroutine(SpawnGroup(wave.groups[i], i == 0));
             }
             else
             {
                 List<Coroutine> routines = new List<Coroutine>();
 
-                foreach (WaveGroupJson g in wave.groups)
-                    routines.Add(StartCoroutine(SpawnGroup(g)));
+                for (int i = 0; i < wave.groups.Count; i++)
+                    routines.Add(StartCoroutine(SpawnGroup(wave.groups[i], i == 0)));
 
                 foreach (Coroutine routine in routines)
                     yield return routine;
@@ -225,12 +228,14 @@ public class WaveSpawnerJson : MonoBehaviour
 
         currentIndex++;
         isWaveRunning = false;
+
         ClearActiveEnemy();
-        completedTypingTargets.Clear();
+        usedEnemies.Clear();
 
         if (currentIndex >= waveFiles.Length && !loopWaves)
         {
             SetStatus("All waves complete");
+
             if (NextWavePanel != null)
                 NextWavePanel.SetActive(false);
 
@@ -281,29 +286,35 @@ public class WaveSpawnerJson : MonoBehaviour
     public void ShowReadyForNextWave()
     {
         SetStatus("");
+
         if (NextWavePanel != null)
             NextWavePanel.SetActive(true);
     }
 
-    IEnumerator SpawnGroup(WaveGroupJson g)
+    IEnumerator SpawnGroup(WaveGroupJson group, bool isFirstGroup)
     {
         if (spawnPoints == null || spawnPoints.Length == 0)
             yield break;
 
-        GameObject prefab = GetPrefab(g.enemyType);
+        if (group == null)
+            yield break;
+
+        GameObject prefab = GetPrefab(group.enemyType);
         if (prefab == null)
             yield break;
 
-        if (g.count == null || g.count.Length == 0)
+        if (group.count == null || group.count.Length == 0)
             yield break;
 
-        float interval = Mathf.Max(0f, g.interval);
+        float interval = Mathf.Max(0f, group.interval);
 
-        if (g.count.Length == 1)
+        if (!isFirstGroup && group.startDelay > 0f)
+            yield return new WaitForSeconds(group.startDelay);
+
+        if (group.count.Length == 1)
         {
-            int count = Mathf.Max(0, g.count[0]);
+            int count = Mathf.Max(0, group.count[0]);
             SpawnRow(prefab, count);
-            RefreshClosestActiveEnemy();
 
             if (interval > 0f)
                 yield return new WaitForSeconds(interval);
@@ -312,11 +323,10 @@ public class WaveSpawnerJson : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < g.count.Length; i++)
+            for (int i = 0; i < group.count.Length; i++)
             {
-                int count = Mathf.Max(0, g.count[i]);
+                int count = Mathf.Max(0, group.count[i]);
                 SpawnRow(prefab, count);
-                RefreshClosestActiveEnemy();
 
                 if (interval > 0f)
                     yield return new WaitForSeconds(interval);
@@ -326,15 +336,14 @@ public class WaveSpawnerJson : MonoBehaviour
         }
     }
 
-    void SpawnOne(GameObject prefab)
-    {
-        Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        GameObject go = Instantiate(prefab, sp.position, sp.rotation);
-        RegisterEnemy(go);
-    }
-
     void SpawnRow(GameObject prefab, int count)
     {
+        if (prefab == null)
+            return;
+
+        if (spawnPoints == null || spawnPoints.Length == 0)
+            return;
+
         if (count <= 0)
             return;
 
@@ -350,7 +359,7 @@ public class WaveSpawnerJson : MonoBehaviour
 
         float totalWidth = 8f;
         float spacing = totalWidth / (count - 1);
-        float startX = basePosition.x - 4f;
+        float startX = basePosition.x - (totalWidth * 0.5f);
 
         for (int i = 0; i < count; i++)
         {
@@ -375,6 +384,8 @@ public class WaveSpawnerJson : MonoBehaviour
             if (augmentManager != null)
                 enemy.moveSpeed *= augmentManager.enemySpeedMultiplier;
         }
+
+        RefreshClosestActiveEnemy();
     }
 
     public void NotifyEnemyDied(GameObject enemyObject)
@@ -387,7 +398,7 @@ public class WaveSpawnerJson : MonoBehaviour
             enemy = enemyObject.GetComponent<EnemyBase>();
 
         if (enemy != null)
-            completedTypingTargets.Remove(enemy);
+            usedEnemies.Remove(enemy);
 
         if (activeEnemy != null && activeEnemy.gameObject == enemyObject)
         {
@@ -402,7 +413,7 @@ public class WaveSpawnerJson : MonoBehaviour
     {
         if (justCompletedEnemy != null)
         {
-            completedTypingTargets.Add(justCompletedEnemy);
+            usedEnemies.Add(justCompletedEnemy);
             justCompletedEnemy.SetActiveTarget(false);
         }
 
@@ -414,6 +425,8 @@ public class WaveSpawnerJson : MonoBehaviour
 
     public void StunAllLivingEnemies(float duration)
     {
+        CleanupCollections();
+
         foreach (GameObject go in living)
         {
             if (go == null)
@@ -429,7 +442,7 @@ public class WaveSpawnerJson : MonoBehaviour
     {
         CleanupCollections();
 
-        EnemyBase closest = FindClosestEligibleEnemyToPlayer();
+        EnemyBase closest = FindClosestUnusedLivingEnemyToPlayer();
 
         if (closest == activeEnemy)
             return;
@@ -443,7 +456,7 @@ public class WaveSpawnerJson : MonoBehaviour
             activeEnemy.SetActiveTarget(true);
     }
 
-    EnemyBase FindClosestEligibleEnemyToPlayer()
+    EnemyBase FindClosestUnusedLivingEnemyToPlayer()
     {
         if (player == null)
             return null;
@@ -461,7 +474,7 @@ public class WaveSpawnerJson : MonoBehaviour
             if (enemy == null)
                 continue;
 
-            if (completedTypingTargets.Contains(enemy))
+            if (usedEnemies.Contains(enemy))
                 continue;
 
             float distSqr = (enemy.transform.position - playerPos).sqrMagnitude;
@@ -478,7 +491,7 @@ public class WaveSpawnerJson : MonoBehaviour
     void CleanupCollections()
     {
         living.RemoveWhere(go => go == null);
-        completedTypingTargets.RemoveWhere(enemy => enemy == null);
+        usedEnemies.RemoveWhere(enemy => enemy == null);
     }
 
     void ClearActiveEnemy()
@@ -507,10 +520,17 @@ public class WaveSpawnerJson : MonoBehaviour
 
         switch (enemyType)
         {
-            case "Earth": return EarthPrefab;
-            case "Fire": return FirePrefab;
-            case "Water": return WaterPrefab;
-            default: return null;
+            case "Earth":
+                return EarthPrefab;
+
+            case "Fire":
+                return FirePrefab;
+
+            case "Water":
+                return WaterPrefab;
+
+            default:
+                return null;
         }
     }
 

@@ -41,7 +41,6 @@ public class MainMenuController : MonoBehaviour
     private PanelEntry currentPanel;
     private bool isPressingButton = false;
 
-    // keeps track of the last selected object so we only play the move sound when it actually changes
     private GameObject lastSelectedObject;
 
     void Start()
@@ -156,7 +155,6 @@ public class MainMenuController : MonoBehaviour
 
         if (currentSelected != lastSelectedObject)
         {
-            // don't play a move sound the very first time we get a selection
             if (lastSelectedObject != null)
                 PlayNavigateSound();
 
