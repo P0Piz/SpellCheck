@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class WaveSpawnerJson : MonoBehaviour
@@ -146,10 +147,7 @@ public class WaveSpawnerJson : MonoBehaviour
             }
             else
             {
-                SetStatus("All waves complete");
-                SetButtonInteractable(false);
-                ShowEndScreen("You Win!\nAll rounds complete.");
-                return;
+                SceneManager.LoadScene("WinScreen");
             }
         }
 
@@ -247,12 +245,7 @@ public class WaveSpawnerJson : MonoBehaviour
 
         if (currentIndex >= waveFiles.Length && !loopWaves)
         {
-            SetStatus("All waves complete");
-
-            if (NextWavePanel != null)
-                NextWavePanel.SetActive(false);
-
-            ShowEndScreen("You Win!");
+            SceneManager.LoadScene("WinScreen");
         }
         else
         {
