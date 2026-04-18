@@ -60,6 +60,8 @@ public class WaveSpawnerJson : MonoBehaviour
 
     private Transform player;
 
+    public GameObject tip;
+
     void Awake()
     {
         currentIndex = Mathf.Clamp(startIndex, 0, Mathf.Max(0, waveFiles.Length - 1));
@@ -118,6 +120,11 @@ public class WaveSpawnerJson : MonoBehaviour
 
     public void StartNextWave()
     {
+        if (tip != null)
+        {
+            Destroy(tip);
+        }
+
         if (isWaveRunning)
             return;
 
@@ -156,6 +163,9 @@ public class WaveSpawnerJson : MonoBehaviour
     IEnumerator RunWaveRoutine(string fileName)
     {
         isWaveRunning = true;
+
+        if (WaveMusicManager.Instance != null)
+            WaveMusicManager.Instance.PlayForWave(currentIndex + 1);
 
         if (NextWavePanel != null)
             NextWavePanel.SetActive(false);
@@ -229,6 +239,9 @@ public class WaveSpawnerJson : MonoBehaviour
         currentIndex++;
         isWaveRunning = false;
 
+        if (WaveMusicManager.Instance != null)
+            WaveMusicManager.Instance.PlayChill();
+
         ClearActiveEnemy();
         usedEnemies.Clear();
 
@@ -247,6 +260,9 @@ public class WaveSpawnerJson : MonoBehaviour
             {
                 SetStatus("");
                 augmentShop.OpenShop();
+
+                if (WaveMusicManager.Instance != null)
+                    WaveMusicManager.Instance.PlayChill();
             }
             else
             {

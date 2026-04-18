@@ -43,6 +43,8 @@ public class MainMenuController : MonoBehaviour
 
     private GameObject lastSelectedObject;
 
+    public TitleTypingFX title;
+
     void Start()
     {
         ShowTip();
@@ -249,6 +251,11 @@ public class MainMenuController : MonoBehaviour
             DifficultyManager.Instance.SetDifficulty(difficulty);
 
         SceneManager.LoadScene(gameplaySceneName);
+    }
+
+    public void EnableTitle()
+    {
+        title.enabled = true;
     }
 
     public void ShowTip() => SwitchPanel(tipPanel);

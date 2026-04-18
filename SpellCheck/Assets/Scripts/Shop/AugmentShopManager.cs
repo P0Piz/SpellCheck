@@ -19,6 +19,13 @@ public class AugmentShopManager : MonoBehaviour
     [Header("Settings")]
     public int offersPerShop = 3;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip successSfx;
+    public AudioClip failSfx;
+    [Range(0f, 1f)] public float successVolume = 1f;
+    [Range(0f, 1f)] public float failVolume = 1f;
+
     private bool shopOpen = false;
 
     public bool IsShopOpen => shopOpen;
@@ -88,14 +95,19 @@ public class AugmentShopManager : MonoBehaviour
         if (augment == null || playerManager == null || augmentManager == null)
             return;
 
+        // ? Not enough score
         if (playerManager.currentScore < augment.cost)
         {
             Debug.Log("Not enough score to buy " + augment.augmentName);
+            PlayFailSound();
             return;
         }
 
+        // ? Successful purchase
         playerManager.MinusScore(augment.cost);
         augmentManager.ApplyAugment(augment);
+
+        PlaySuccessSound();
 
         CloseShop();
 
@@ -109,5 +121,17 @@ public class AugmentShopManager : MonoBehaviour
 
         if (waveSpawner != null)
             waveSpawner.ShowReadyForNextWave();
+    }
+
+    void PlaySuccessSound()
+    {
+        if (audioSource != null && successSfx != null)
+            audioSource.PlayOneShot(successSfx, successVolume);
+    }
+
+    void PlayFailSound()
+    {
+        if (audioSource != null && failSfx != null)
+            audioSource.PlayOneShot(failSfx, failVolume);
     }
 }

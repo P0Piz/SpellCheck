@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 03a13e55bdc77484bb3126246c9627e7
+guid: 9aec5e9ea2c88cf45823eaf7e2dd00df
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Magical Neverland
+  - Hello_Graduation_Sans
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
