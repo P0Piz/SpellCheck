@@ -47,6 +47,7 @@ public class MainMenuController : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1f;
         ShowTip();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;

@@ -349,7 +349,7 @@ public class PlayerManager : MonoBehaviour
             nameInputField.Select();
         }
 
-        Time.timeScale = 0f;
+        Time.timeScale = 0;
     }
 
     public void SubmitLeaderboardName()
@@ -490,6 +490,7 @@ public class PlayerManager : MonoBehaviour
 
     public void RestartLevel()
     {
+
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
