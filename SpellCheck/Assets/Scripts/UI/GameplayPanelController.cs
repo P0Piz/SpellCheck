@@ -16,6 +16,10 @@ public class GameplayUIKeyboardControl : MonoBehaviour
     [Header("Panels To Watch")]
     public PanelEntry[] panels;
 
+    [Header("Pause")]
+    [SerializeField] private KeyCode pauseKey = KeyCode.Escape;
+    [SerializeField] private GameObject pausePanel;
+
     [Header("Input")]
     [SerializeField] private KeyCode submitKey = KeyCode.K;
     [SerializeField] private float inputBlockTime = 0.15f;
@@ -36,6 +40,10 @@ public class GameplayUIKeyboardControl : MonoBehaviour
     private bool isPressingButton = false;
     private GameObject lastSelectedObject;
 
+    // stores whatever panel was open before pause
+    private GameObject panelHiddenByPause;
+    private bool isPaused = false;
+
     void Start()
     {
         Cursor.visible = false;
@@ -44,6 +52,8 @@ public class GameplayUIKeyboardControl : MonoBehaviour
 
     void Update()
     {
+        HandlePauseInput();
+
         if (Time.unscaledTime < inputBlockedUntil)
             return;
 
@@ -69,6 +79,60 @@ public class GameplayUIKeyboardControl : MonoBehaviour
         EnsureValidSelection(activePanel);
         CheckSelectionChanged(activePanel);
         HandleSubmitInput();
+    }
+
+    void HandlePauseInput()
+    {
+        if (!Input.GetKeyDown(pauseKey))
+            return;
+
+        if (pausePanel == null)
+            return;
+
+        if (!isPaused)
+            PauseGame();
+        else
+            UnpauseGame();
+    }
+
+    void PauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0f;
+
+        panelHiddenByPause = null;
+
+        // find the currently active panel, but ignore the pause panel itself
+        for (int i = 0; i < panels.Length; i++)
+        {
+            if (panels[i].panel != null &&
+                panels[i].panel.activeSelf &&
+                panels[i].panel != pausePanel)
+            {
+                panelHiddenByPause = panels[i].panel;
+                panels[i].panel.SetActive(false);
+                break;
+            }
+        }
+
+        pausePanel.SetActive(true);
+        RefreshSelection();
+    }
+
+    void UnpauseGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+
+        pausePanel.SetActive(false);
+
+        if (panelHiddenByPause != null)
+        {
+            panelHiddenByPause.SetActive(true);
+            panelHiddenByPause = null;
+        }
+
+        RefreshSelection();
     }
 
     PanelEntry GetActivePanel()
