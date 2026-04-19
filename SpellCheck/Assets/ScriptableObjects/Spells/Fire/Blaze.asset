@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b83af972a6d9de4f8fe2b8a4dbd7de7, type: 3}
+  m_Name: Blaze
+  m_EditorClassIdentifier: Assembly-CSharp::SpellDefinition
+  spellName: Blaze
+  description: 
+  element: 1
+  spawnPrefab: {fileID: 3523280313500285970, guid: 7bd6da07d720dbb458b9fbac79a8022e, type: 3}
+  spawnOffset: {x: 0, y: 0, z: 0}
+  parentToSpawnPoint: 0
+  healAmount: 0

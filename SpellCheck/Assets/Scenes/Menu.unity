@@ -5089,7 +5089,7 @@ MonoBehaviour:
   uiAudioSource: {fileID: 174495333}
   navigateClip: {fileID: 8300000, guid: ad6c9139ac36053499cc318abfa80430, type: 3}
   selectClip: {fileID: 8300000, guid: 737434b1275f5054687c08f4f8cb3f14, type: 3}
-  navigateVolume: 0.85
+  navigateVolume: 1
   selectVolume: 1
   title: {fileID: 107725927}
 --- !u!4 &1431857281
