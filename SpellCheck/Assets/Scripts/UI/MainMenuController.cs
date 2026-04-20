@@ -17,8 +17,6 @@ public class MainMenuController : MonoBehaviour
     public PanelEntry tipPanel;
     public PanelEntry mainPanel;
     public PanelEntry difficultyPanel;
-    public PanelEntry scoresPanel;
-    public PanelEntry settingsPanel;
 
     public string gameplaySceneName = "GameScene";
 
@@ -118,7 +116,7 @@ public class MainMenuController : MonoBehaviour
         if (!Input.GetKeyDown(backKey))
             return;
 
-        if (currentPanel == difficultyPanel || currentPanel == scoresPanel || currentPanel == settingsPanel)
+        if (currentPanel == difficultyPanel)
             ShowMain();
     }
 
@@ -193,8 +191,6 @@ public class MainMenuController : MonoBehaviour
         tipPanel.panel.SetActive(false);
         mainPanel.panel.SetActive(false);
         difficultyPanel.panel.SetActive(false);
-        scoresPanel.panel.SetActive(false);
-        settingsPanel.panel.SetActive(false);
 
         panel.panel.SetActive(true);
         currentPanel = panel;
@@ -233,9 +229,6 @@ public class MainMenuController : MonoBehaviour
     }
 
     public void PlayPressed() => ShowDifficulty();
-    public void ScoresPressed() => ShowScores();
-    public void SettingsPressed() => ShowSettings();
-
     public void ExitPressed()
     {
         Application.Quit();
@@ -262,6 +255,4 @@ public class MainMenuController : MonoBehaviour
     public void ShowTip() => SwitchPanel(tipPanel);
     public void ShowMain() => SwitchPanel(mainPanel);
     public void ShowDifficulty() => SwitchPanel(difficultyPanel);
-    public void ShowScores() => SwitchPanel(scoresPanel);
-    public void ShowSettings() => SwitchPanel(settingsPanel);
 }
