@@ -40,7 +40,6 @@ public class GameplayUIKeyboardControl : MonoBehaviour
     private bool isPressingButton = false;
     private GameObject lastSelectedObject;
 
-    // stores whatever panel was open before pause
     private GameObject panelHiddenByPause;
     private bool isPaused = false;
 
@@ -102,7 +101,6 @@ public class GameplayUIKeyboardControl : MonoBehaviour
 
         panelHiddenByPause = null;
 
-        // find the currently active panel, but ignore the pause panel itself
         for (int i = 0; i < panels.Length; i++)
         {
             if (panels[i].panel != null &&
