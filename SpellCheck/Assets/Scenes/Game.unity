@@ -3030,6 +3030,7 @@ MonoBehaviour:
   spawnPoints:
   - {fileID: 34461772}
   statusText: {fileID: 285805876}
+  gameplayPanelController: {fileID: 452408727}
   endScreenPanel: {fileID: 0}
   endScreenText: {fileID: 0}
   autoStartFirstWave: 0
@@ -3237,6 +3238,7 @@ MonoBehaviour:
     defaultSelectable: {fileID: 730436030}
   pauseKey: 27
   pausePanel: {fileID: 2049185928}
+  isPaused: 0
   submitKey: 107
   inputBlockTime: 0.15
   buttonPressTrigger: Pressed

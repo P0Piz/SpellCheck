@@ -19,6 +19,7 @@ public class GameplayUIKeyboardControl : MonoBehaviour
     [Header("Pause")]
     [SerializeField] private KeyCode pauseKey = KeyCode.Escape;
     [SerializeField] private GameObject pausePanel;
+    public bool isPaused = false;
 
     [Header("Input")]
     [SerializeField] private KeyCode submitKey = KeyCode.K;
@@ -42,7 +43,6 @@ public class GameplayUIKeyboardControl : MonoBehaviour
 
     // stores whatever panel was open before pause
     private GameObject panelHiddenByPause;
-    private bool isPaused = false;
 
     void Start()
     {

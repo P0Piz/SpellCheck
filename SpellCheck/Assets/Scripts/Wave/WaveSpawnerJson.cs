@@ -21,6 +21,7 @@ public class WaveSpawnerJson : MonoBehaviour
 
     [Header("UI")]
     public TMP_Text statusText;
+    public GameplayUIKeyboardControl gameplayPanelController;
 
     [Header("End Screen")]
     public GameObject endScreenPanel;
@@ -82,7 +83,7 @@ public class WaveSpawnerJson : MonoBehaviour
     void Update()
     {
         if (typing != null)
-            typing.enabled = isWaveRunning;
+            typing.enabled = isWaveRunning && !gameplayPanelController.isPaused;
 
         if (!isWaveRunning)
             return;
