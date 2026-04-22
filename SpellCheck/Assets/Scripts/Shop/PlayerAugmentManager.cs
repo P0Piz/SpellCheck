@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class PlayerAugmentManager : MonoBehaviour
 {
+    public event Action OnAugmentsChanged;
+
     [Header("Refs")]
     public PlayerManager playerManager;
     public WaveSpawnerJson waveSpawner;
@@ -44,11 +47,14 @@ public class PlayerAugmentManager : MonoBehaviour
 
         if (augment.augmentID == "snails_pace")
             enemySpeedMultiplier *= 0.8f;
+
+        NotifyAugmentsChanged();
     }
 
     public void OnWaveStarted()
     {
         lastChanceUsedThisWave = false;
+        NotifyAugmentsChanged();
     }
 
     public void OnSuccessfulSpellCast()
@@ -61,6 +67,8 @@ public class PlayerAugmentManager : MonoBehaviour
 
         if (HasAugment("you_shall_not_pass") && successfulSpellCount % 10 == 0 && waveSpawner != null)
             waveSpawner.StunAllLivingEnemies(2f);
+
+        NotifyAugmentsChanged();
     }
 
     public void OnSpellMistake()
@@ -69,6 +77,8 @@ public class PlayerAugmentManager : MonoBehaviour
 
         if (HasAugment("glass_cannon") && playerManager != null)
             playerManager.TakeDamage(1);
+
+        NotifyAugmentsChanged();
     }
 
     public bool CanUseLastChance()
@@ -79,6 +89,7 @@ public class PlayerAugmentManager : MonoBehaviour
     public void ConsumeLastChance()
     {
         lastChanceUsedThisWave = true;
+        NotifyAugmentsChanged();
     }
 
     public float GetProjectileSpeedBonus()
@@ -171,5 +182,10 @@ public class PlayerAugmentManager : MonoBehaviour
             default:
                 return false;
         }
+    }
+
+    private void NotifyAugmentsChanged()
+    {
+        OnAugmentsChanged?.Invoke();
     }
 }

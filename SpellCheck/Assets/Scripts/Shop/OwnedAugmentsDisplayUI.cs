@@ -10,20 +10,20 @@ public class OwnedAugmentsDisplayUI : MonoBehaviour
     public Transform contentParent;
     public AugmentDisplayEntry entryPrefab;
 
-    [Header("Refresh")]
-    public bool refreshEveryFrame = true;
-
     private readonly List<AugmentDisplayEntry> spawnedEntries = new List<AugmentDisplayEntry>();
 
-    private void Start()
+    private void OnEnable()
     {
+        if (augmentManager != null)
+            augmentManager.OnAugmentsChanged += RefreshDisplay;
+
         RefreshDisplay();
     }
 
-    private void Update()
+    private void OnDisable()
     {
-        if (refreshEveryFrame)
-            RefreshDisplay();
+        if (augmentManager != null)
+            augmentManager.OnAugmentsChanged -= RefreshDisplay;
     }
 
     public void RefreshDisplay()
