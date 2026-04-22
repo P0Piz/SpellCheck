@@ -108,4 +108,68 @@ public class PlayerAugmentManager : MonoBehaviour
     {
         return HasAugment("split");
     }
+
+    public string GetAugmentDisplayName(AugmentData augment)
+    {
+        if (augment == null)
+            return "";
+
+        return augment.augmentName;
+    }
+
+    public bool TryGetAugmentCounterText(string augmentID, out string counterText)
+    {
+        counterText = "";
+
+        if (!HasAugment(augmentID))
+            return false;
+
+        switch (augmentID)
+        {
+            case "echo_heal":
+                counterText = (successfulSpellCount % 5) + "/5";
+                return true;
+
+            case "you_shall_not_pass":
+                counterText = (successfulSpellCount % 10) + "/10";
+                return true;
+
+            case "chain":
+                counterText = (successfulSpellCount % 3) + "/3";
+                return true;
+
+            case "flow_state":
+                counterText = "Streak: " + correctStreak;
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public bool TryGetAugmentMultiplierText(string augmentID, out string multiplierText)
+    {
+        multiplierText = "";
+
+        if (!HasAugment(augmentID))
+            return false;
+
+        switch (augmentID)
+        {
+            case "flow_state":
+                multiplierText = "+" + (correctStreak * 1.5f).ToString("0.0");
+                return true;
+
+            case "glass_cannon":
+                multiplierText = "+8";
+                return true;
+
+            case "snails_pace":
+                multiplierText = "x" + enemySpeedMultiplier.ToString("0.00");
+                return true;
+
+            default:
+                return false;
+        }
+    }
 }
