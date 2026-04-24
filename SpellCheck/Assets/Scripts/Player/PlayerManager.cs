@@ -349,6 +349,18 @@ public class PlayerManager : MonoBehaviour
             nameInputField.Select();
         }
 
+        EnemyBase[] enemies = FindObjectsOfType<EnemyBase>();
+
+        foreach (EnemyBase enemy in enemies)
+        {
+            TMP_Text[] texts = enemy.GetComponentsInChildren<TMP_Text>(true);
+
+            foreach (TMP_Text text in texts)
+            {
+                text.enabled = false;
+            }
+        }
+
         Time.timeScale = 0;
     }
 
