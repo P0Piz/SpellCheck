@@ -5,8 +5,7 @@ using UnityEngine.UI;
 public class AugmentCardUI : MonoBehaviour
 {
     [Header("UI")]
-    public TMP_Text titleText;
-    public TMP_Text descText;
+    public Image augmentImage;
     public TMP_Text costText;
     public Button buyButton;
 
@@ -18,14 +17,11 @@ public class AugmentCardUI : MonoBehaviour
         currentAugment = augment;
         currentShop = shop;
 
-        if (titleText != null)
-            titleText.text = augment.augmentName;
-
-        if (descText != null)
-            descText.text = augment.description;
+        if (augmentImage != null)
+            augmentImage.sprite = augment.augmentImage;
 
         if (costText != null)
-            costText.text = "Cost: " + augment.cost;
+            costText.text = augment.cost.ToString();
 
         if (buyButton != null)
         {

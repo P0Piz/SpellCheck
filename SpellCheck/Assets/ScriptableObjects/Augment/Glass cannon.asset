@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: glass_cannon
   augmentName: Glass cannon
   description: Faster Projectiles, but mistakes hurt you
+  augmentImage: {fileID: 21300000, guid: 9eae8cc2c2d6cb945bb599b70aa2d778, type: 3}
   cost: 1000

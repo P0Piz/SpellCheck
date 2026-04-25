@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: split
   augmentName: Split
   description: Split the spell to hit multiple enmies
+  augmentImage: {fileID: 21300000, guid: c4be3378aeb451d43b0bc787b9ffe455, type: 3}
   cost: 900

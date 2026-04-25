@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: echo_heal
   augmentName: Echo Heal
   description: Every 5 casts heal 1 heart
+  augmentImage: {fileID: 21300000, guid: a1b14644e0e5233449200f918bf3d4ba, type: 3}
   cost: 600

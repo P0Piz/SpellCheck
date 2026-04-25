@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: flow_state
   augmentName: Flow state
   description: Correct streak increases projectile speed
+  augmentImage: {fileID: 21300000, guid: 4c97adc55811a5c4096e63782c09a150, type: 3}
   cost: 1200

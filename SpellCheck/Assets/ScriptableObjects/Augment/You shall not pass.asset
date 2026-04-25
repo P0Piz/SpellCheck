@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: you_shall_not_pass
   augmentName: You shall not pass
   description: 'Every 10 spells stuns all enemies '
+  augmentImage: {fileID: 21300000, guid: 91027bc03c57c3b4e91a157238357b6f, type: 3}
   cost: 1000

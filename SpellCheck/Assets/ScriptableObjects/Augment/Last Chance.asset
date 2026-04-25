@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: last_chance
   augmentName: Last Chance
   description: Survive a killing blow once per wave
+  augmentImage: {fileID: 21300000, guid: 647a2003febdedd42972c57fcb455e25, type: 3}
   cost: 700

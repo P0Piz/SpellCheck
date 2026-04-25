@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: pierce
   augmentName: Pierce
   description: Spell continues after hitting an enemy
+  augmentImage: {fileID: 21300000, guid: 90015e099fc566a479baa0a5cabc7450, type: 3}
   cost: 700

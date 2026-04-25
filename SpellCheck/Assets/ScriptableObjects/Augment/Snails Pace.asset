@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: snails_pace
   augmentName: Snails Pace
   description: Enemies move slower
+  augmentImage: {fileID: 21300000, guid: e9304bf9382bbce45834b0af035b3531, type: 3}
   cost: 2000

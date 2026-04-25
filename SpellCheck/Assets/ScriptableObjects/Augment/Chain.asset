@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: chain
   augmentName: Chain
   description: Every 3rd spell casted. Chain the spell to closest enemy
+  augmentImage: {fileID: 21300000, guid: 3789a50fd2efc464892e049de91b6ebf, type: 3}
   cost: 500

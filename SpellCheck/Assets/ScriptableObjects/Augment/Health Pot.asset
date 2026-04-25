@@ -15,4 +15,5 @@ MonoBehaviour:
   augmentID: health_pot
   augmentName: Health Pot
   description: Gain 1 temp heart
+  augmentImage: {fileID: 21300000, guid: 71c42ddeb01088043a445c05964d78ae, type: 3}
   cost: 300
